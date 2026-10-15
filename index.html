@@ -1,1137 +1,2703 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Killing Evil Matthew</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗡️</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --stone: #23203A;
-    --stone-hi: #2E2A4A;
-    --panel: #3A3560;
-    --line: #F2E9D0;
-    --text: #F2E9D0;
-    --dim: #A9A2C9;
-    --banish: #E0453A;
-    --bestow: #5BC26A;
-    --loot: #F7C548;
-    --stash: #6FA8DC;
-    --dark-on: #1A1626;
-    --px: 4px;
-    --pixel: 'Press Start 2P', 'Courier New', monospace;
-    --term: 'VT323', 'Courier New', monospace;
-    --ring: 0 calc(var(--px) * -1) 0 0 var(--line), 0 var(--px) 0 0 var(--line), calc(var(--px) * -1) 0 0 0 var(--line), var(--px) 0 0 0 var(--line);
-    color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  html { height: 100%; }
-  body {
-    margin: 0; min-height: 100%;
-    font-family: var(--term); font-size: 23px; line-height: 1.15;
-    color: var(--text); background-color: var(--stone);
-    background-image:
-      linear-gradient(var(--stone-hi) 2px, transparent 2px),
-      linear-gradient(90deg, var(--stone-hi) 2px, transparent 2px);
-    background-size: 64px 32px, 64px 64px;
-    background-position: 0 0, 32px 32px;
-    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
-    -webkit-font-smoothing: none;
-  }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 0 18px 64px; }
-  .px { background: var(--panel); box-shadow: var(--ring); margin: var(--px); }
-
-  header { text-align: center; padding: 30px 0 8px; }
-  h1 { font-family: var(--pixel); font-weight: 400; font-size: 1.15rem; line-height: 1.6; margin: 0; color: var(--loot); text-shadow: 3px 3px 0 var(--banish); }
-  h1 small { display: block; font-size: 0.6rem; color: var(--text); text-shadow: none; margin-top: 8px; }
-  .torch { display: inline-block; animation: flicker 1.4s steps(2) infinite; }
-  @keyframes flicker { 50% { opacity: 0.55; } }
-
-  .hero-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; margin-top: 22px; text-align: left; }
-  .hero-bar strong { font-family: var(--pixel); font-weight: 400; font-size: 0.62rem; line-height: 1.6; color: var(--loot); }
-  .hero-tools { display: flex; align-items: center; gap: 6px; flex: none; }
-  .me { display: flex; align-items: center; gap: 12px; min-width: 0; }
-  .linkish { background: none; border: none; color: var(--text); font: inherit; cursor: pointer; padding: 4px; text-decoration: underline; text-underline-offset: 4px; }
-  .icon-btn { background: var(--stone); border: 3px solid var(--dim); color: var(--text); font-size: 1.2rem; width: 44px; height: 44px; cursor: pointer; }
-  .demo-note { color: var(--dim); text-align: center; margin: 14px 0 0; font-size: 1.05rem; }
-
-  nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 26px var(--px) 24px; }
-  nav button {
-    position: relative; font: 400 0.52rem var(--pixel); line-height: 1.5; padding: 12px 4px; cursor: pointer;
-    background: var(--stone); color: var(--text); border: none;
-    box-shadow: 0 -4px 0 0 var(--dim), 0 4px 0 0 var(--dim), -4px 0 0 0 var(--dim), 4px 0 0 0 var(--dim);
-  }
-  nav button[aria-selected="true"] { background: var(--loot); color: var(--dark-on); box-shadow: var(--ring); }
-  .badge { position: absolute; top: -12px; right: -10px; background: var(--banish); color: #fff; font: 400 0.5rem var(--pixel); padding: 4px 5px; box-shadow: 0 0 0 3px var(--line); }
-
-  .step { font-family: var(--pixel); font-size: 0.6rem; color: var(--dim); margin: 0 0 12px; line-height: 1.6; display: block; }
-  .panel { padding: 18px 16px 20px; margin-bottom: 26px; }
-  .intro { color: var(--dim); font-size: 1.2rem; margin: 0 var(--px) 22px; }
-  input[type=text], input[type=search], input[type=number], textarea, select {
-    width: 100%; font: 400 1.4rem var(--term); padding: 8px 12px; border-radius: 0;
-    background: var(--stone); color: var(--text); border: 4px solid var(--line);
-  }
-  textarea { min-height: 180px; resize: vertical; line-height: 1.1; }
-  input::placeholder, textarea::placeholder { color: var(--dim); }
-
-  .rooms { display: flex; flex-wrap: wrap; gap: 10px; }
-  .room { font: 400 1.25rem var(--term); padding: 4px 12px 6px; cursor: pointer; border-radius: 0; background: var(--stone); color: var(--text); border: 3px solid var(--dim); }
-  .room[aria-pressed="true"] { border-color: var(--loot); color: var(--loot); }
-  .room[aria-pressed="true"]::before { content: '🚪 '; }
-  .room.dead { opacity: 0.6; }
-  .room.dead::after { content: ' ☠'; }
-
-  /* Big chunky buttons */
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 0 var(--px); }
-  .act {
-    cursor: pointer; border: none; border-radius: 0; padding: 16px 8px 14px; text-align: center; color: var(--dark-on); font-family: var(--term);
-    box-shadow: var(--ring), inset -6px -6px 0 0 rgba(0,0,0,0.28), inset 6px 6px 0 0 rgba(255,255,255,0.28);
-  }
-  .act:active { box-shadow: var(--ring), inset 6px 6px 0 0 rgba(0,0,0,0.3); transform: translateY(2px); }
-  .act:disabled { opacity: 0.5; cursor: wait; }
-  .act .icon { display: block; font-size: 1.8rem; line-height: 1; }
-  .act .word { display: block; font-family: var(--pixel); font-size: 0.72rem; margin-top: 10px; }
-  .act .pts { display: block; font-size: 1.2rem; margin-top: 6px; }
-  .act[data-d=dump] { background: var(--banish); }
-  .act[data-d=donate] { background: var(--bestow); }
-  .act[data-d=sell] { background: var(--loot); }
-  .act[data-d=keep] { background: var(--stash); }
-  .act.wide { grid-column: 1 / -1; background: var(--line); display: flex; align-items: center; justify-content: center; gap: 14px; padding: 14px; }
-  .act.wide .word { margin: 0; }
-  .act.small { padding: 10px 12px; font-size: 1.2rem; }
-  .act.small .word { font-size: 0.55rem; margin: 0; }
-  .act.red { background: var(--banish); } .act.blue { background: var(--stash); } .act.green { background: var(--bestow); } .act.gold { background: var(--loot); } .act.plain { background: var(--line); }
-  .act[aria-pressed="true"] { outline: 4px dashed var(--loot); outline-offset: 6px; }
-  .btn-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; padding: 0 var(--px); }
-  .btn-row .act { flex: 1; min-width: 120px; }
-
-  /* Combo meter */
-  .combo { margin: 26px var(--px) 0; padding: 12px 14px; }
-  .combo strong { font-family: var(--pixel); font-weight: 400; font-size: 0.62rem; color: var(--loot); line-height: 1.6; }
-  .combo-bar { height: 12px; margin-top: 10px; background: var(--stone); border: 3px solid var(--line); }
-  .combo-bar i { display: block; height: 100%; background: var(--loot); animation: drain linear forwards; }
-  @keyframes drain { to { width: 0; } }
-
-  h2 { font-family: var(--pixel); font-weight: 400; font-size: 0.72rem; color: var(--loot); margin: 40px 0 16px; line-height: 1.6; }
-  .log { list-style: none; margin: 0; padding: 6px 14px; }
-  .log li { padding: 10px 0; border-bottom: 2px dashed var(--dim); display: flex; align-items: center; gap: 12px; }
-  .log li:last-child { border-bottom: none; }
-  .log .txt { flex: 1; min-width: 0; }
-  .log .what { display: block; font-size: 1.25rem; overflow-wrap: anywhere; }
-  .log .what b { font-weight: 400; color: var(--loot); }
-  .log .meta { display: block; color: var(--dim); font-size: 1.05rem; }
-  .log .undo { flex: none; }
-  .log .sprite { width: 52px; height: 52px; flex: none; }
-  .tag { display: inline-block; font: 400 0.48rem var(--pixel); padding: 3px 5px; margin-left: 6px; vertical-align: 3px; color: var(--dark-on); background: var(--loot); }
-  .tag.crit { background: var(--banish); color: #fff; }
-  .empty { padding: 16px; margin: var(--px); color: var(--dim); }
-
-  .sprite { display: block; width: 64px; height: 64px; object-fit: cover; image-rendering: pixelated; image-rendering: crisp-edges; border: 3px solid var(--line); background: var(--stone); flex: none; }
-  .photo-row { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
-  .snap { position: relative; cursor: pointer; font: 400 0.58rem var(--pixel); line-height: 1.5; padding: 12px 14px; background: var(--stone); color: var(--text); border: 3px solid var(--line); }
-  .snap input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-  .snap:focus-within { outline: 3px dashed var(--loot); outline-offset: 6px; }
-  .photo-preview { display: flex; align-items: center; gap: 10px; }
-
-  .avatar { display: block; flex: none; image-rendering: pixelated; }
-  .kind { display: block; font-family: var(--term); font-size: 1.1rem; color: var(--dim); line-height: 1.1; margin-top: 2px; }
-  .kind:empty { display: none; }
-
-  /* Bosses */
-  .boss { padding: 14px 16px 16px; margin-bottom: 26px; }
-  .boss .bname { font-family: var(--pixel); font-size: 0.66rem; line-height: 1.6; color: var(--banish); }
-  .hpline { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-  .hpline > span { font-family: var(--pixel); font-size: 0.52rem; }
-  .hp { flex: 1; height: 20px; background: var(--stone); border: 3px solid var(--line); display: flex; gap: 2px; padding: 2px; }
-  .hp i { flex: 1; } .hp i.on { background: var(--banish); }
-  .boss .sub { color: var(--dim); font-size: 1.15rem; margin-top: 8px; }
-  .boss.dead .bname { color: var(--dim); text-decoration: line-through; }
-  .slain { font-family: var(--pixel); font-size: 0.6rem; color: var(--loot); margin-top: 10px; line-height: 1.6; }
-  .boss.hit { animation: shake 280ms steps(4); }
-  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-  .final-head { display: flex; gap: 16px; align-items: center; }
-  .final-head > div { flex: 1; min-width: 0; }
-  .map .boss { margin-bottom: 18px; }
-  .map .hp { height: 16px; }
-
-  /* Cards used by Tribunal, Merchant and Packing */
-  .card { padding: 14px 16px 16px; margin-bottom: 24px; }
-  .card-top { display: flex; gap: 14px; align-items: center; }
-  .card-top > div { flex: 1; min-width: 0; }
-  .card .title { font-size: 1.45rem; overflow-wrap: anywhere; color: var(--loot); }
-  .card .meta { color: var(--dim); font-size: 1.1rem; }
-  .votes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
-  .vote { display: flex; align-items: center; gap: 6px; font-size: 1.15rem; }
-  .price-row { display: flex; gap: 12px; align-items: center; margin-top: 14px; }
-  .price-row span { font-family: var(--pixel); font-size: 0.8rem; }
-  .price-row input { flex: 1; min-width: 0; }
-
-  .treasury { text-align: center; padding: 18px 14px; margin-bottom: 24px; }
-  .treasury b { display: block; font-family: var(--pixel); font-weight: 400; font-size: 1.4rem; color: var(--loot); margin-bottom: 10px; }
-
-  .box-num { font-family: var(--pixel); font-size: 0.8rem; color: var(--loot); }
-  .found { margin: 10px 0 0; padding-left: 22px; color: var(--loot); }
-  .new-box { display: flex; gap: 12px; flex-wrap: wrap; }
-  .new-box select { flex: 1 1 160px; }
-  .new-box .act { flex: 1 1 160px; }
-
-  .task { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; cursor: pointer; padding: 10px 12px; margin-bottom: 10px;
-          background: var(--stone); color: var(--text); border: 3px solid var(--dim); font: 400 1.25rem var(--term); }
-  .task .box { font-family: var(--pixel); font-size: 0.8rem; color: var(--loot); flex: none; }
-  .task > span:nth-child(2) { flex: 1; }
-  .task.done { border-color: var(--bestow); }
-  .task.done > span:nth-child(2) { text-decoration: line-through; color: var(--dim); }
-  .task .by { display: flex; align-items: center; gap: 6px; color: var(--dim); font-size: 1rem; flex: none; }
-
-  .tally { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 26px; }
-  .tally > div { padding: 12px 8px; text-align: center; font-size: 1.1rem; }
-  .tally b { display: block; font-family: var(--pixel); font-weight: 400; font-size: 0.9rem; color: var(--loot); margin-bottom: 8px; }
-
-  .hero { padding: 14px 16px 16px; margin-bottom: 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; }
-  .hero .rank { font-family: var(--pixel); font-size: 0.9rem; color: var(--dim); }
-  .hero.leader .rank { color: var(--loot); }
-  .hero .name { font-family: var(--pixel); font-size: 0.6rem; line-height: 1.6; overflow-wrap: anywhere; display: flex; align-items: center; gap: 12px; }
-  .hero .lvl { font-family: var(--pixel); font-size: 0.58rem; color: var(--loot); text-align: right; }
-  .hero .xpline { grid-column: 1 / 4; display: flex; align-items: center; gap: 10px; }
-  .hero .xpline span:first-child { font-family: var(--pixel); font-size: 0.52rem; }
-  .xp { flex: 1; height: 16px; background: var(--stone); border: 3px solid var(--line); display: flex; padding: 2px; gap: 2px; }
-  .xp i { flex: 1; } .xp i.on { background: var(--bestow); }
-  .hero .breakdown { grid-column: 1 / 4; color: var(--dim); font-size: 1.12rem; }
-  .hero.leader .avatar { animation: bob 1s steps(2) infinite; }
-  @keyframes bob { 50% { transform: translateY(-3px); } }
-
-  .trophies { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 20px; }
-  .trophy { padding: 10px; text-align: center; }
-  .trophy a { display: block; }
-  .trophy .sprite { width: 100%; height: auto; aspect-ratio: 1; }
-  .trophy span { display: block; font-size: 1.1rem; margin-top: 8px; overflow-wrap: anywhere; }
-  .trophy small { display: block; color: var(--dim); font-size: 0.95rem; }
-
-  .toast {
-    position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
-    width: min(520px, calc(100% - 40px)); background: var(--stone); color: var(--text); font-size: 1.35rem; padding: 14px 16px; z-index: 20;
-    box-shadow: var(--ring); display: none;
-  }
-  .toast.show { display: block; }
-  .toast::after { content: ' ▼'; color: var(--loot); animation: flicker 0.8s steps(2) infinite; }
-
-  .overlay { position: fixed; inset: 0; background: rgba(15, 12, 26, 0.85); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 30; }
-  .overlay.open { display: flex; }
-  .picker { width: 100%; max-width: 400px; padding: 22px 20px; }
-  .picker h2 { margin-top: 0; text-align: center; }
-  .picker button {
-    display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 12px; padding: 12px; cursor: pointer; text-align: left;
-    font: 400 1.4rem var(--term); background: var(--stone); color: var(--text); border: 3px solid var(--dim); border-radius: 0;
-  }
-  .picker button:hover, .picker button:focus-visible { border-color: var(--loot); color: var(--loot); }
-
-  [hidden] { display: none !important; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px dashed var(--loot); outline-offset: 6px; }
-  @media (prefers-reduced-motion: reduce) {
-    .torch, .toast::after, .boss.hit, .hero.leader .avatar { animation: none; }
-    .act:active { transform: none; }
-  }
-
-  /* Printable box labels */
-  #labels { display: none; }
-  .label { border: 1.5mm solid #000; padding: 6mm; height: 128mm; margin-bottom: 8mm; break-inside: avoid; page-break-inside: avoid;
-           display: flex; flex-direction: column; font-family: var(--term); color: #000; background: #fff; }
-  .lab-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; border-bottom: 1mm solid #000; padding-bottom: 3mm; }
-  .lab-num { font-family: var(--pixel); font-size: 26pt; }
-  .lab-room { font-family: var(--pixel); font-size: 11pt; text-align: right; line-height: 1.5; }
-  .lab-body { display: flex; gap: 6mm; flex: 1; padding-top: 4mm; overflow: hidden; }
-  .lab-body ul { flex: 1; margin: 0; padding-left: 5mm; font-size: 15pt; line-height: 1.15; columns: 2; column-gap: 6mm; }
-  .lab-qr { width: 42mm; flex: none; text-align: center; font-size: 11pt; }
-  .lab-qr svg { width: 42mm; height: 42mm; display: block; margin-bottom: 2mm; }
-  .lab-foot { font-size: 12pt; margin-top: 3mm; }
-  @media print {
-    @page { size: A4; margin: 12mm; }
-    body { background: #fff !important; color: #000; padding: 0; }
-    .wrap, .toast, .overlay { display: none !important; }
-    #labels { display: block; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header>
-    <h1><span class="torch" aria-hidden="true">🔥</span> Kill it With Fire <span class="torch" aria-hidden="true">🔥</span><small>We are so good at moving house</small></h1>
-    <div class="hero-bar px">
-      <span class="me"><span id="meAvatar"></span><span><strong id="meName">…</strong><span class="kind" id="meKind"></span></span></span>
-      <span class="hero-tools">
-        <button class="icon-btn" type="button" data-act="sound" id="soundBtn" aria-label="Sound on">🔊</button>
-        <button class="linkish" type="button" data-act="switch">Change hero</button>
-      </span>
-    </div>
-    <p class="demo-note" id="demoNote" hidden>Practice mode: progress saves on this device only. Add the Apps Script URL to play together.</p>
-  </header>
-
-  <nav role="tablist" id="tabs">
-    <button role="tab" type="button" data-act="tab" data-tab="quest">Quest</button>
-    <button role="tab" type="button" data-act="tab" data-tab="tribunal">Tribunal<span class="badge" id="badge-tribunal" hidden></span></button>
-    <button role="tab" type="button" data-act="tab" data-tab="merchant">Merchant<span class="badge" id="badge-merchant" hidden></span></button>
-    <button role="tab" type="button" data-act="tab" data-tab="packing">Packing</button>
-    <button role="tab" type="button" data-act="tab" data-tab="final">Final boss</button>
-    <button role="tab" type="button" data-act="tab" data-tab="hall">Heroes</button>
-  </nav>
-
-  <!-- QUEST -->
-  <section data-view="quest">
-    <div class="panel px">
-      <span class="step">Enter a room</span>
-      <div class="rooms" id="rooms" role="group" aria-label="Room"></div>
-    </div>
-    <div class="boss px" id="boss" hidden></div>
-    <div class="panel px">
-      <label class="step" for="itemInput">Name the item</label>
-      <input type="text" id="itemInput" maxlength="120" placeholder="a cursed third blender" autocomplete="off">
-      <div class="photo-row">
-        <label class="snap"><input type="file" id="photoInput" accept="image/*" capture="environment"><span id="snapLabel">📷 Add photo</span></label>
-        <div class="photo-preview" id="photoPreview"></div>
-      </div>
-    </div>
-    <span class="step" style="text-align:center">Choose its fate</span>
-    <div class="actions" id="actions"></div>
-    <div id="combo"></div>
-    <h2>Quest log</h2>
-    <ul class="log px" id="feed"></ul>
-  </section>
-
-  <!-- TRIBUNAL -->
-  <section data-view="tribunal" hidden>
-    <p class="intro" id="tribunalIntro"></p>
-    <div id="cases"></div>
-    <h2>Recent verdicts</h2>
-    <div id="verdicts"></div>
-  </section>
-
-  <!-- MERCHANT -->
-  <section data-view="merchant" hidden>
-    <div class="treasury px" id="treasury"></div>
-    <p class="intro" id="merchantIntro"></p>
-    <div id="listed"></div>
-    <h2>Sales ledger</h2>
-    <div id="ledger"></div>
-  </section>
-
-  <!-- PACKING -->
-  <section data-view="packing" hidden>
-    <div class="panel px">
-      <span class="step">Start a box</span>
-      <div class="new-box">
-        <select id="boxRoom" aria-label="Room for the new box"></select>
-        <button type="button" class="act small gold" data-act="box-new"><span class="word" id="newBoxLabel">📦 Pack a new box</span></button>
-      </div>
-    </div>
-    <div class="panel px">
-      <label class="step" for="boxSearch">Find something</label>
-      <input type="search" id="boxSearch" placeholder="Where's the kettle?" autocomplete="off">
-    </div>
-    <div class="btn-row" style="margin-bottom:26px">
-      <button type="button" class="act small plain" data-act="print-all"><span class="word">🖨 Print all labels</span></button>
-    </div>
-    <div id="boxList"></div>
-  </section>
-
-  <!-- FINAL BOSS -->
-  <section data-view="final" hidden>
-    <div class="boss px" id="finalBoss"></div>
-    <p class="intro" id="finalIntro"></p>
-    <div id="bondList"></div>
-  </section>
-
-  <!-- HALL -->
-  <section data-view="hall" hidden>
-    <div class="tally" id="tally"></div>
-    <div id="board"></div>
-    <h2>Dungeon map</h2>
-    <div class="map" id="map"></div>
-    <h2>Trophy room</h2>
-    <div class="trophies" id="trophies"></div>
-  </section>
-</div>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<div class="overlay" id="overlay">
-  <div class="picker px" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
-    <h2 id="pickTitle">Choose your hero</h2>
-    <div id="playerButtons"></div>
-  </div>
-</div>
-
-<div id="labels"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script>
-/* Paste your Apps Script web app URL here. Leave empty for practice mode. */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwWTlqgpkAuQ3-xZUkhhlMbcZHht6hRc4ubKkegMKCREoTiR28YTjiATtaq2ztc9vHqKQ/exec';
-
-const DEMO = !API_URL;
-
-/* 8-bit hero sprites, keyed by first name ("Caitlin" matches "Caitlin the Changeling").
-   Each row is 12 pixels; '.' is transparent and every other letter is a palette colour. */
-const AVATARS = {
-  Caitlin: { kind: 'Changeling', palette: {"k": "#1A1626", "h": "#F4F1FF", "s": "#C9C3E0", "d": "#9F97C2", "e": "#7FE7FF", "p": "#7A4FC9", "q": "#523090", "w": "#FFFFFF"},
-    rows: [
-      '...kkkkkk...',
-      '..khhhhhhk..',
-      '.khhhhhhhhk.',
-      '.khsssssshk.',
-      'khseesseeshk',
-      'khsssssssshk',
-      'khhssddsshhk',
-      'khhhsssshhhk',
-      '.khkppppkhk.',
-      '.kpppwppppk.',
-      'kpppppwpppqk',
-      'kpqpppppqpqk',
-      'kpqpppppqpqk',
-      'kqqpppppqqqk',
-      '.kkqq..qqkk.',
-      '..kkk..kkk..'
-    ] },
-  Grace: { kind: 'Grung', palette: {"k": "#1A1626", "b": "#3FA9F5", "B": "#1F6FB8", "y": "#FFE066", "e": "#FFFFFF", "v": "#8A5A2E"},
-    rows: [
-      '.kkk....kkk.',
-      'keeekkkkeeek',
-      'kekebbbbekek',
-      'kbbbbbbbbbbk',
-      'kbBbbbbbbBbk',
-      'kbkkkkkkkkbk',
-      '.kbbbbbbbbk.',
-      '..kbbbbbbk..',
-      '.kbkyyyykbk.',
-      'kbbkyyyykbbk',
-      'kbBkyyyykBbk',
-      '.kkyyyyyykk.',
-      '..kvvvvvvk..',
-      '..kbbkkbbk..',
-      '.kbbk..kbbk.',
-      'kbbbk..kbbbk'
-    ] },
-  Hannah: { kind: 'Halfling', palette: {"k": "#1A1626", "h": "#6B3F1D", "H": "#9A6230", "s": "#F2C29B", "r": "#E8907E", "g": "#3E8E4E", "G": "#28663A", "v": "#8A5A2E"},
-    rows: [
-      '..khkhhkhk..',
-      '.khHhhHhhHk.',
-      'khHhhhhhhhHk',
-      'khhsssssshhk',
-      'khsskssksshk',
-      'kssrssssrssk',
-      '.kssskksssk.',
-      '..kssssssk..',
-      '.kgkvvvvkgk.',
-      'kggkvvvvkggk',
-      'kgGksvvskGgk',
-      'kgGgvvvvgGgk',
-      'kgGgvvvvgGgk',
-      '.kGgkkkkgGk.',
-      '..ksk..ksk..',
-      '.kssk..kssk.'
-    ] }
-};
-
-/* The final boss sprite */
-const PM_SPRITE = { kind: 'Final boss', palette: {"k":"#1A1626","h":"#4A4A5A","s":"#E8B48A","w":"#FFFFFF","t":"#6B6F80","T":"#4A4D5C","c":"#B07F45","p":"#FFFFFF","r":"#E0453A"},
-  rows: ['...kkkkkk...','..khhhhhhk..','.khhhhhhhhk.','.khsssssshk.','kskwkkkkwksk','kssssssssssk','.kssskkkssk.','..kssssssk..',
-         '.kttkrrkttk.','kttTtrrtTttk','kcppckrtTttk','kcpkpcrtTttk','kcppcktttTtk','.kccckttTtk.','..kTTk.kTTk.','.kkkk..kkkk.'] };
-
-const FATE = {
-  dump:     { icon: '💀', word: 'Banish', done: 'banished' },
-  donate:   { icon: '🕊️', word: 'Bestow', done: 'bestowed' },
-  sell:     { icon: '💰', word: 'Sell',   done: 'listed' },
-  keep:     { icon: '🎒', word: 'Stash',  done: 'stashed' },
-  tribunal: { icon: '⚖️', word: 'Tribunal', done: 'took to the Tribunal' }
-};
-
-const DEMO_CONFIG = {
-  players: ['Caitlin the Changeling', 'Grace the Grung', 'Hannah the Halfling'],
-  bosses: [
-    { room: 'Kitchen', hp: 125, boss: 'Night Claw The Whooping Rat' },
-    { room: 'Lounge (upper)', hp: 50, boss: 'Ghoulface the Corrupt Beholder' },
-    { room: 'Lounge (lower)', hp: 100, boss: 'Syphillis the Penguin' },
-    { room: 'Bathroom', hp: 60, boss: 'Plague Scale the Cursed Glob' },
-    { room: 'Caitlins Bedroom', hp: 100, boss: 'Soil Face the Nightmare Man' },
-    { room: 'Graces Bedroom', hp: 250, boss: 'Gross Mutant the Rotten Serpent' },
-    { room: 'Hannahs bedroom', hp: 150, boss: 'Moonloo the Crying Worm' },
-    { room: 'Black thing', hp: 75, boss: 'The Thing in the Black' },
-    { room: 'Fun Garage', hp: 100, boss: 'Rotfeet the Rusty' },
-    { room: 'Hole', hp: 250, boss: 'The Garbage Leviathan' },
-    { room: 'Cupboard Under Stairs', hp: 20, boss: 'Harry Potters House' }
-  ],
-  points: { dump: 5, donate: 4, sell: 3, keep: 0, box: 5, bondTask: 3 },
-  combo: { windowSeconds: 90, critChance: 0.1 },
-  finalBoss: 'The Property Manager',
-  bondTasks: [
-    ['Kitchen', 'Oven, racks and trays degreased'], ['Kitchen', 'Stovetop and rangehood filter'],
-    ['Kitchen', 'Fridge inside, outside and behind'], ['Kitchen', 'Cupboards and drawers wiped out'],
-    ['Kitchen', 'Benches, splashback, sink and taps'], ['Bathroom', 'Shower, glass and grout'],
-    ['Bathroom', 'Toilet, inside and out'], ['Bathroom', 'Basin, mirror and cabinet'],
-    ['Bathroom', 'Extractor fan and any mould spots'], ['Throughout', 'Walls spot-cleaned and scuffs removed'],
-    ['Throughout', 'Hooks, Blu Tack and tape removed'], ['Throughout', 'Skirting boards and light switches'],
-    ['Throughout', 'Windows, sills and tracks'], ['Throughout', 'Curtains or blinds cleaned'],
-    ['Throughout', 'Wardrobes and shelves emptied and wiped'], ['Throughout', 'Floors vacuumed and mopped'],
-    ['Outside', 'Garage swept out'], ['Outside', 'Hole completely emptied'], ['Outside', 'Lawns and gardens tidied'],
-    ['Outside', 'Bins emptied and rubbish gone'], ['Handover', 'All keys and remotes returned']
-  ]
-};
-
-let state = { players: [], rooms: [], bosses: [], points: {}, combo: { windowSeconds: 90 }, finalBoss: '', items: [], boxes: [], bond: [] };
-let me = lsGet('dd-me');
-let room = lsGet('dd-room');
-let tab = lsGet('dd-tab') || 'quest';
-let busy = false;
-let photo = null;          // { full, sprite } for the item being sorted
-let openBox = null;        // id of the expanded box
-const drafts = {};         // unsaved text in box and price fields
-let pendingBoxQuery = new URLSearchParams(location.search).get('box');
-let comboTimer;
-
-const $ = id => document.getElementById(id);
-
-/* ---------- small helpers ---------- */
-function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-function short(name) { return String(name).split(' ')[0]; }
-function nzTime(iso) { return new Date(iso).toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland', weekday: 'short', hour: 'numeric', minute: '2-digit' }); }
-const NZD = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' });
-function money(n) { return NZD.format(n || 0); }
-function comboMult(c) { return Math.min(3, 1 + Math.floor((c - 1) / 3) * 0.5); }
-const XP_PER_LEVEL = 20;
-function levelOf(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
-function lines(text) { return String(text || '').split('\n').map(s => s.trim()).filter(Boolean); }
-
-/* ---------- sprites ---------- */
-function avatarFor(name) {
-  if (AVATARS[name]) return AVATARS[name];
-  const key = Object.keys(AVATARS).find(k => String(name).startsWith(k + ' '));
-  return key ? AVATARS[key] : null;
-}
-function spriteSvg(a, size, label) {
-  if (!a) return '';
-  let rects = '';
-  a.rows.forEach((row, y) => {
-    let x = 0;
-    while (x < row.length) {
-      const ch = row[x]; let run = 1;
-      while (row[x + run] === ch) run++;
-      if (ch !== '.' && a.palette[ch]) rects += `<rect x="${x + 2}" y="${y}" width="${run}" height="1" fill="${a.palette[ch]}"/>`;
-      x += run;
-    }
-  });
-  return `<svg class="avatar" width="${size}" height="${size}" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="${esc(label)}">${rects}</svg>`;
-}
-function avatarSvg(name, size = 48) { const a = avatarFor(name); return a ? spriteSvg(a, size, `${name} the ${a.kind}`) : ''; }
-function kindOf(name) {
-  const a = avatarFor(name);
-  if (!a) return '';
-  return String(name).toLowerCase().includes(a.kind.toLowerCase()) ? '' : a.kind;
-}
-function spriteImg(i, cls = 'sprite') {
-  if (!i.photo) return '';
-  const img = `<img class="${cls}" src="${esc(i.photo)}" alt="${esc(i.item)}" loading="lazy">`;
-  return i.photoFull ? `<a href="${esc(i.photoFull)}" target="_blank" rel="noopener" aria-label="Open photo of ${esc(i.item)}">${img}</a>` : img;
-}
-
-/* ---------- chiptune sound ---------- */
-const Sfx = {
-  ctx: null,
-  on: lsGet('dd-sound') !== false,
-  audio() {
-    if (!this.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; this.ctx = new AC(); }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    return this.ctx;
-  },
-  note(freq, at, dur, opts = {}) {
-    const c = this.audio(); if (!c) return;
-    const t = c.currentTime + at, o = c.createOscillator(), g = c.createGain();
-    o.type = opts.type || 'square';
-    o.frequency.setValueAtTime(freq, t);
-    if (opts.to) o.frequency.exponentialRampToValueAtTime(opts.to, t + dur);
-    g.gain.setValueAtTime(opts.vol || 0.05, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(c.destination);
-    o.start(t); o.stop(t + dur + 0.05);
-  },
-  noise(at, dur, vol = 0.07) {
-    const c = this.audio(); if (!c) return;
-    const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = c.createBufferSource(), g = c.createGain(), t = c.currentTime + at;
-    src.buffer = buf; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(g).connect(c.destination); src.start(t);
-  },
-  play(name, arg) {
-    if (!this.on) return;
-    try { (SOUNDS[name] || (() => {}))(arg); } catch (e) {}
-  }
-};
-const N = (f, at, dur, o) => Sfx.note(f, at, dur, o);
-const SOUNDS = {
-  dump()   { Sfx.noise(0, 0.18); N(330, 0, 0.25, { to: 60 }); },
-  donate() { [523, 659, 784, 1047].forEach((f, i) => N(f, i * 0.07, 0.12, { type: 'triangle', vol: 0.07 })); },
-  sell()   { N(988, 0, 0.08); N(1319, 0.08, 0.28); },
-  keep()   { N(392, 0, 0.08); N(294, 0.09, 0.14); },
-  tribunal() { N(196, 0, 0.12, { type: 'triangle', vol: 0.09 }); N(196, 0.18, 0.2, { type: 'triangle', vol: 0.09 }); },
-  vote()   { N(660, 0, 0.06); N(880, 0.06, 0.1); },
-  tick()   { N(784, 0, 0.05); N(1175, 0.05, 0.12, { type: 'triangle' }); },
-  box()    { N(110, 0, 0.16, { to: 55, vol: 0.09 }); Sfx.noise(0, 0.06, 0.05); },
-  crit()   { N(1800, 0, 0.16, { to: 300 }); Sfx.noise(0.02, 0.12, 0.06); },
-  combo(n) { N(440 * Math.pow(2, Math.min(n, 15) / 12), 0.12, 0.1, { vol: 0.04 }); },
-  levelUp(){ [523, 659, 784, 1047, 1319].forEach((f, i) => N(f, 0.25 + i * 0.06, 0.12)); },
-  fanfare(){ [[523,0,.1],[523,.12,.1],[523,.24,.1],[698,.36,.32],[784,.72,.14],[698,.88,.12],[784,1.02,.6]].forEach(([f,a,d]) => N(f, a + 0.2, d, { vol: 0.06 })); },
-  error()  { N(150, 0, 0.22, { type: 'sawtooth', vol: 0.04 }); }
-};
-
-/* ---------- practice-mode backend (mirrors Code.gs) ---------- */
-function demoDb() {
-  const db = lsGet('dd-demo-db') || {
-    items: (lsGet('dd-demo-items') || []),
-    boxes: [],
-    bond: DEMO_CONFIG.bondTasks.map(([area, task], n) => ({ id: 't' + n, area, task, doneBy: '', ts: '' }))
-  };
-  db.items.forEach(i => { i.combo = i.combo || 1; i.status = i.status || ''; i.votes = i.votes || {}; });
-  return db;
-}
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function demoApi(b) {
-  const db = demoDb(), P = DEMO_CONFIG.points, players = DEMO_CONFIG.players;
-  const find = (list, id) => list.find(x => x.id === id);
-  if (b) {
-    if (b.action === 'add') {
-      const mine = db.items.filter(i => i.player === b.player), prev = mine[mine.length - 1];
-      const combo = prev && (Date.now() - Date.parse(prev.ts)) / 1000 <= DEMO_CONFIG.combo.windowSeconds ? prev.combo + 1 : 1;
-      const trib = b.decision === 'tribunal';
-      const crit = !trib && b.decision !== 'keep' && Math.random() < DEMO_CONFIG.combo.critChance;
-      db.items.push({ id: uid(), ts: new Date().toISOString(), player: b.player, item: (b.item || '').trim() || 'Mystery item',
-        room: b.room, decision: b.decision, points: Math.round((trib ? 0 : P[b.decision]) * comboMult(combo) * (crit ? 2 : 1)),
-        photo: b.photo || '', photoFull: '', status: b.decision === 'sell' ? 'listed' : trib ? 'pending' : '', soldFor: 0, combo, crit, votes: {} });
-    } else if (b.action === 'undo') {
-      db.items = db.items.filter(i => !(i.id === b.id && i.player === b.player));
-    } else if (b.action === 'vote') {
-      const i = find(db.items, b.id);
-      if (i && i.decision === 'tribunal') {
-        i.votes[b.player] = b.vote;
-        const need = Math.floor(players.length / 2) + 1, n = v => Object.values(i.votes).filter(x => x === v).length;
-        if (n('banish') >= need) Object.assign(i, { decision: 'dump', points: P.dump, status: 'verdict' });
-        else if (n('spare') >= need) Object.assign(i, { decision: 'keep', points: 0, status: 'verdict' });
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Killing Evil Matthew</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗡️</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --stone: #23203a;
+        --stone-hi: #2e2a4a;
+        --panel: #3a3560;
+        --line: #f2e9d0;
+        --text: #f2e9d0;
+        --dim: #a9a2c9;
+        --banish: #e0453a;
+        --bestow: #5bc26a;
+        --loot: #f7c548;
+        --stash: #6fa8dc;
+        --dark-on: #1a1626;
+        --px: 4px;
+        --pixel: "Press Start 2P", "Courier New", monospace;
+        --term: "VT323", "Courier New", monospace;
+        --ring:
+          0 calc(var(--px) * -1) 0 0 var(--line), 0 var(--px) 0 0 var(--line),
+          calc(var(--px) * -1) 0 0 0 var(--line), var(--px) 0 0 0 var(--line);
+        color-scheme: dark;
       }
-    } else if (b.action === 'sold') {
-      const i = find(db.items, b.id); if (i) Object.assign(i, { status: 'sold', soldFor: Math.max(0, Number(b.price) || 0) });
-    } else if (b.action === 'giveup') {
-      const i = find(db.items, b.id); if (i) Object.assign(i, { decision: 'donate', points: P.donate, status: '' });
-    } else if (b.action === 'box_add') {
-      const next = db.boxes.reduce((m, x) => Math.max(m, x.number), 0) + 1;
-      db.boxes.push({ id: uid(), number: next, room: b.room, contents: '', packedBy: b.player, ts: new Date().toISOString() });
-    } else if (b.action === 'box_update') {
-      const x = find(db.boxes, b.id); if (x) x.contents = b.contents || '';
-    } else if (b.action === 'box_delete') {
-      db.boxes = db.boxes.filter(x => x.id !== b.id);
-    } else if (b.action === 'bond_toggle') {
-      const t = find(db.bond, b.id);
-      if (t && !t.doneBy) Object.assign(t, { doneBy: b.player, ts: new Date().toISOString() });
-      else if (t && t.doneBy === b.player) Object.assign(t, { doneBy: '', ts: '' });
-      else if (t) return Promise.reject(new Error(short(t.doneBy) + ' already ticked that one.'));
-    }
-    lsSet('dd-demo-db', db);
-  }
-  const { bondTasks, ...cfg } = DEMO_CONFIG;
-  return Promise.resolve(Object.assign({ ok: true }, cfg, { rooms: cfg.bosses.map(x => x.room) }, db));
-}
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: var(--term);
+        font-size: 23px;
+        line-height: 1.15;
+        color: var(--text);
+        background-color: var(--stone);
+        background-image:
+          linear-gradient(var(--stone-hi) 2px, transparent 2px),
+          linear-gradient(90deg, var(--stone-hi) 2px, transparent 2px);
+        background-size:
+          64px 32px,
+          64px 64px;
+        background-position:
+          0 0,
+          32px 32px;
+        padding: env(safe-area-inset-top, 0px) 0
+          env(safe-area-inset-bottom, 0px);
+        -webkit-font-smoothing: none;
+      }
+      .wrap {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 0 18px 64px;
+      }
+      .px {
+        background: var(--panel);
+        box-shadow: var(--ring);
+        margin: var(--px);
+      }
 
-/* ---------- talking to the sheet ---------- */
-async function api(body) {
-  if (DEMO) return demoApi(body);
-  const res = body
-    ? await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
-    : await fetch(API_URL);
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'The sheet rejected that.');
-  return data;
-}
-async function refresh() {
-  try { state = await api(); render(); handleBoxQuery(); }
-  catch (e) { toast('The portal to the sheet is closed. Check the Apps Script URL and your connection.'); }
-}
-async function act(body) {
-  busy = true;
-  try { state = await api(Object.assign({ player: me }, body)); return true; }
-  catch (e) { toast(e.message); Sfx.play('error'); return false; }
-  finally { busy = false; render(); }
-}
+      header {
+        text-align: center;
+        padding: 30px 0 8px;
+      }
+      h1 {
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: clamp(0.6rem, calc((100vw - 48px) / 23), 1.15rem);
+        white-space: nowrap;
+        line-height: 1.6;
+        margin: 0;
+        color: var(--loot);
+        text-shadow: 3px 3px 0 var(--banish);
+      }
+    
+      h1 small {
+        white-space: normal;
+        display: block;
+        font-size: 0.6rem;
+        color: var(--text);
+        text-shadow: none;
+        margin-top: 8px;
+      }
+      .torch {
+        display: inline-block;
+        animation: flicker 1.4s steps(2) infinite;
+      }
+      @keyframes flicker {
+        50% {
+          opacity: 0.55;
+        }
+      }
 
-/* ---------- derived numbers ---------- */
-function itemXP(i) {
-  if (i.decision === 'tribunal') return 0;
-  if (i.decision === 'sell' && i.status !== 'sold') return 0;
-  return i.points;
-}
-function heroStats(p) {
-  const items = state.items.filter(i => i.player === p);
-  const boxes = state.boxes.filter(b => b.packedBy === p).length;
-  const tasks = state.bond.filter(t => t.doneBy === p).length;
-  const n = d => items.filter(i => i.decision === d).length;
-  return {
-    name: p, boxes, tasks,
-    xp: items.reduce((s, i) => s + itemXP(i), 0) + boxes * (state.points.box || 0) + tasks * (state.points.bondTask || 0),
-    dump: n('dump'), donate: n('donate'), keep: n('keep'),
-    sold: items.filter(i => i.decision === 'sell' && i.status === 'sold').length,
-    gone: items.filter(i => ['dump', 'donate', 'sell'].includes(i.decision)).length,
-    bestCombo: items.reduce((m, i) => Math.max(m, i.combo || 1), 0)
-  };
-}
-function bossOf(r) {
-  const b = (state.bosses || []).find(x => x.room === r);
-  if (!b) return null;
-  const dmg = state.items.filter(i => i.room === r && i.decision !== 'tribunal').length;
-  if (!b.hp) return Object.assign({}, b, { dmg, left: 0, dead: false, unset: true });
-  return Object.assign({}, b, { dmg, left: Math.max(0, b.hp - dmg), dead: dmg >= b.hp });
-}
-function finalBossOf() {
-  const hp = state.bond.length, dmg = state.bond.filter(t => t.doneBy).length;
-  return { room: 'The house', boss: state.finalBoss || 'The Property Manager', hp, dmg, left: Math.max(0, hp - dmg), dead: hp > 0 && dmg >= hp, unset: !hp };
-}
-function comboState() {
-  const mine = state.items.filter(i => i.player === me);
-  const last = mine[mine.length - 1];
-  if (!last || (last.combo || 1) < 2) return null;
-  const win = (state.combo && state.combo.windowSeconds) || 90;
-  const remaining = win - (Date.now() - Date.parse(last.ts)) / 1000;
-  if (remaining <= 0) return null;
-  return { combo: last.combo, next: comboMult(last.combo + 1), remaining, win };
-}
-function pendingFor(p) { return state.items.filter(i => i.decision === 'tribunal' && !(i.votes || {})[p]); }
+      .hero-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        margin-top: 22px;
+        text-align: left;
+      }
+      .hero-bar strong {
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 0.62rem;
+        line-height: 1.6;
+        color: var(--loot);
+      }
+      .hero-tools {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: none;
+      }
+      .me {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .linkish {
+        background: none;
+        border: none;
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+        padding: 4px;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .icon-btn {
+        background: var(--stone);
+        border: 3px solid var(--dim);
+        color: var(--text);
+        font-size: 1.2rem;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+      }
+      .demo-note {
+        color: var(--dim);
+        text-align: center;
+        margin: 14px 0 0;
+        font-size: 1.05rem;
+      }
 
-/* ---------- shared pieces ---------- */
-function hpBar(b, segs = 20) {
-  const on = b.left > 0 ? Math.ceil(b.left / b.hp * segs) : 0;
-  return `<div class="hp" role="img" aria-label="${b.left} of ${b.hp} HP left">${
-    Array.from({ length: segs }, (_, n) => `<i class="${n < on ? 'on' : ''}"></i>`).join('')}</div>`;
-}
-function bossCard(b, segs, unit = 'sorted') {
-  if (b.unset) return `<div class="bname">${esc(b.boss)}</div>
+      nav {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 26px var(--px) 24px;
+      }
+      nav button {
+        position: relative;
+        font: 400 0.52rem var(--pixel);
+        line-height: 1.5;
+        padding: 12px 4px;
+        cursor: pointer;
+        background: var(--stone);
+        color: var(--text);
+        border: none;
+        box-shadow:
+          0 -4px 0 0 var(--dim),
+          0 4px 0 0 var(--dim),
+          -4px 0 0 0 var(--dim),
+          4px 0 0 0 var(--dim);
+      }
+      nav button[aria-selected="true"] {
+        background: var(--loot);
+        color: var(--dark-on);
+        box-shadow: var(--ring);
+      }
+      .badge {
+        position: absolute;
+        top: -12px;
+        right: -10px;
+        background: var(--banish);
+        color: #fff;
+        font: 400 0.5rem var(--pixel);
+        padding: 4px 5px;
+        box-shadow: 0 0 0 3px var(--line);
+      }
+
+      .step {
+        font-family: var(--pixel);
+        font-size: 0.6rem;
+        color: var(--dim);
+        margin: 0 0 12px;
+        line-height: 1.6;
+        display: block;
+      }
+      .panel {
+        padding: 18px 16px 20px;
+        margin-bottom: 26px;
+      }
+      .intro {
+        color: var(--dim);
+        font-size: 1.2rem;
+        margin: 0 var(--px) 22px;
+      }
+      input[type="text"],
+      input[type="search"],
+      input[type="number"],
+      textarea,
+      select {
+        width: 100%;
+        font: 400 1.4rem var(--term);
+        padding: 8px 12px;
+        border-radius: 0;
+        background: var(--stone);
+        color: var(--text);
+        border: 4px solid var(--line);
+      }
+      textarea {
+        min-height: 180px;
+        resize: vertical;
+        line-height: 1.1;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: var(--dim);
+      }
+
+      .rooms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .room {
+        font: 400 1.25rem var(--term);
+        padding: 4px 12px 6px;
+        cursor: pointer;
+        border-radius: 0;
+        background: var(--stone);
+        color: var(--text);
+        border: 3px solid var(--dim);
+      }
+      .room[aria-pressed="true"] {
+        border-color: var(--loot);
+        color: var(--loot);
+      }
+      .room[aria-pressed="true"]::before {
+        content: "🚪 ";
+      }
+      .room.dead {
+        opacity: 0.6;
+      }
+      .room.dead::after {
+        content: " ☠";
+      }
+
+      /* Big chunky buttons */
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        padding: 0 var(--px);
+      }
+      .act {
+        cursor: pointer;
+        border: none;
+        border-radius: 0;
+        padding: 16px 8px 14px;
+        text-align: center;
+        color: var(--dark-on);
+        font-family: var(--term);
+        box-shadow:
+          var(--ring),
+          inset -6px -6px 0 0 rgba(0, 0, 0, 0.28),
+          inset 6px 6px 0 0 rgba(255, 255, 255, 0.28);
+      }
+      .act:active {
+        box-shadow:
+          var(--ring),
+          inset 6px 6px 0 0 rgba(0, 0, 0, 0.3);
+        transform: translateY(2px);
+      }
+      .act:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      .act .icon {
+        display: block;
+        font-size: 1.8rem;
+        line-height: 1;
+      }
+      .act .word {
+        display: block;
+        font-family: var(--pixel);
+        font-size: 0.72rem;
+        margin-top: 10px;
+      }
+      .act .pts {
+        display: block;
+        font-size: 1.2rem;
+        margin-top: 6px;
+      }
+      .act[data-d="dump"] {
+        background: var(--banish);
+      }
+      .act[data-d="donate"] {
+        background: var(--bestow);
+      }
+      .act[data-d="sell"] {
+        background: var(--loot);
+      }
+      .act[data-d="keep"] {
+        background: var(--stash);
+      }
+      .act.wide {
+        grid-column: 1 / -1;
+        background: var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 14px;
+      }
+      .act.wide .word {
+        margin: 0;
+      }
+      .act.small {
+        padding: 10px 12px;
+        font-size: 1.2rem;
+      }
+      .act.small .word {
+        font-size: 0.55rem;
+        margin: 0;
+      }
+      .act.red {
+        background: var(--banish);
+      }
+      .act.blue {
+        background: var(--stash);
+      }
+      .act.green {
+        background: var(--bestow);
+      }
+      .act.gold {
+        background: var(--loot);
+      }
+      .act.plain {
+        background: var(--line);
+      }
+      .act[aria-pressed="true"] {
+        outline: 4px dashed var(--loot);
+        outline-offset: 6px;
+      }
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 16px;
+        padding: 0 var(--px);
+      }
+      .btn-row .act {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      /* Combo meter */
+      .combo {
+        margin: 26px var(--px) 0;
+        padding: 12px 14px;
+      }
+      .combo strong {
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 0.62rem;
+        color: var(--loot);
+        line-height: 1.6;
+      }
+      .combo-bar {
+        height: 12px;
+        margin-top: 10px;
+        background: var(--stone);
+        border: 3px solid var(--line);
+      }
+      .combo-bar i {
+        display: block;
+        height: 100%;
+        background: var(--loot);
+        animation: drain linear forwards;
+      }
+      @keyframes drain {
+        to {
+          width: 0;
+        }
+      }
+
+      h2 {
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 0.72rem;
+        color: var(--loot);
+        margin: 40px 0 16px;
+        line-height: 1.6;
+      }
+      .log {
+        list-style: none;
+        margin: 0;
+        padding: 6px 14px;
+      }
+      .log li {
+        padding: 10px 0;
+        border-bottom: 2px dashed var(--dim);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .log li:last-child {
+        border-bottom: none;
+      }
+      .log .txt {
+        flex: 1;
+        min-width: 0;
+      }
+      .log .what {
+        display: block;
+        font-size: 1.25rem;
+        overflow-wrap: anywhere;
+      }
+      .log .what b {
+        font-weight: 400;
+        color: var(--loot);
+      }
+      .log .meta {
+        display: block;
+        color: var(--dim);
+        font-size: 1.05rem;
+      }
+      .log .undo {
+        flex: none;
+      }
+      .log .sprite {
+        width: 52px;
+        height: 52px;
+        flex: none;
+      }
+      .tag {
+        display: inline-block;
+        font: 400 0.48rem var(--pixel);
+        padding: 3px 5px;
+        margin-left: 6px;
+        vertical-align: 3px;
+        color: var(--dark-on);
+        background: var(--loot);
+      }
+      .tag.crit {
+        background: var(--banish);
+        color: #fff;
+      }
+      .empty {
+        padding: 16px;
+        margin: var(--px);
+        color: var(--dim);
+      }
+
+      .sprite {
+        display: block;
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        border: 3px solid var(--line);
+        background: var(--stone);
+        flex: none;
+      }
+      .photo-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .snap {
+        position: relative;
+        cursor: pointer;
+        font: 400 0.58rem var(--pixel);
+        line-height: 1.5;
+        padding: 12px 14px;
+        background: var(--stone);
+        color: var(--text);
+        border: 3px solid var(--line);
+      }
+      .snap input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        overflow: hidden;
+      }
+      .snap:focus-within {
+        outline: 3px dashed var(--loot);
+        outline-offset: 6px;
+      }
+      .photo-preview {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .avatar {
+        display: block;
+        flex: none;
+        image-rendering: pixelated;
+      }
+      .kind {
+        display: block;
+        font-family: var(--term);
+        font-size: 1.1rem;
+        color: var(--dim);
+        line-height: 1.1;
+        margin-top: 2px;
+      }
+      .kind:empty {
+        display: none;
+      }
+
+      /* Bosses */
+      .boss {
+        padding: 14px 16px 16px;
+        margin-bottom: 26px;
+      }
+      .boss .bname {
+        font-family: var(--pixel);
+        font-size: 0.66rem;
+        line-height: 1.6;
+        color: var(--banish);
+      }
+      .hpline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .hpline > span {
+        font-family: var(--pixel);
+        font-size: 0.52rem;
+      }
+      .hp {
+        flex: 1;
+        height: 20px;
+        background: var(--stone);
+        border: 3px solid var(--line);
+        display: flex;
+        gap: 2px;
+        padding: 2px;
+      }
+      .hp i {
+        flex: 1;
+      }
+      .hp i.on {
+        background: var(--banish);
+      }
+      .boss .sub {
+        color: var(--dim);
+        font-size: 1.15rem;
+        margin-top: 8px;
+      }
+      .boss.dead .bname {
+        color: var(--dim);
+        text-decoration: line-through;
+      }
+      .slain {
+        font-family: var(--pixel);
+        font-size: 0.6rem;
+        color: var(--loot);
+        margin-top: 10px;
+        line-height: 1.6;
+      }
+      .boss.hit {
+        animation: shake 280ms steps(4);
+      }
+      @keyframes shake {
+        25% {
+          transform: translateX(-6px);
+        }
+        75% {
+          transform: translateX(6px);
+        }
+      }
+      .final-head {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .final-head > div {
+        flex: 1;
+        min-width: 0;
+      }
+      .map .boss {
+        margin-bottom: 18px;
+      }
+      .map .hp {
+        height: 16px;
+      }
+
+      /* Cards used by Tribunal, Merchant and Packing */
+      .card {
+        padding: 14px 16px 16px;
+        margin-bottom: 24px;
+      }
+      .card-top {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .card-top > div {
+        flex: 1;
+        min-width: 0;
+      }
+      .card .title {
+        font-size: 1.45rem;
+        overflow-wrap: anywhere;
+        color: var(--loot);
+      }
+      .card .meta {
+        color: var(--dim);
+        font-size: 1.1rem;
+      }
+      .votes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .vote {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 1.15rem;
+      }
+      .price-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 14px;
+      }
+      .price-row span {
+        font-family: var(--pixel);
+        font-size: 0.8rem;
+      }
+      .price-row input {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .treasury {
+        text-align: center;
+        padding: 18px 14px;
+        margin-bottom: 24px;
+      }
+      .treasury b {
+        display: block;
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 1.4rem;
+        color: var(--loot);
+        margin-bottom: 10px;
+      }
+
+      .box-num {
+        font-family: var(--pixel);
+        font-size: 0.8rem;
+        color: var(--loot);
+      }
+      .found {
+        margin: 10px 0 0;
+        padding-left: 22px;
+        color: var(--loot);
+      }
+      .new-box {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .new-box select {
+        flex: 1 1 160px;
+      }
+      .new-box .act {
+        flex: 1 1 160px;
+      }
+
+      .task {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        background: var(--stone);
+        color: var(--text);
+        border: 3px solid var(--dim);
+        font: 400 1.25rem var(--term);
+      }
+      .task .box {
+        font-family: var(--pixel);
+        font-size: 0.8rem;
+        color: var(--loot);
+        flex: none;
+      }
+      .task > span:nth-child(2) {
+        flex: 1;
+      }
+      .task.done {
+        border-color: var(--bestow);
+      }
+      .task.done > span:nth-child(2) {
+        text-decoration: line-through;
+        color: var(--dim);
+      }
+      .task .by {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--dim);
+        font-size: 1rem;
+        flex: none;
+      }
+
+      .tally {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 26px;
+      }
+      .tally > div {
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 1.1rem;
+      }
+      .tally b {
+        display: block;
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 0.9rem;
+        color: var(--loot);
+        margin-bottom: 8px;
+      }
+
+      .hero {
+        padding: 14px 16px 16px;
+        margin-bottom: 22px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px 12px;
+        align-items: center;
+      }
+      .hero .rank {
+        font-family: var(--pixel);
+        font-size: 0.9rem;
+        color: var(--dim);
+      }
+      .hero.leader .rank {
+        color: var(--loot);
+      }
+      .hero .name {
+        font-family: var(--pixel);
+        font-size: 0.6rem;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .hero .lvl {
+        font-family: var(--pixel);
+        font-size: 0.58rem;
+        color: var(--loot);
+        text-align: right;
+      }
+      .hero .xpline {
+        grid-column: 1 / 4;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .hero .xpline span:first-child {
+        font-family: var(--pixel);
+        font-size: 0.52rem;
+      }
+      .xp {
+        flex: 1;
+        height: 16px;
+        background: var(--stone);
+        border: 3px solid var(--line);
+        display: flex;
+        padding: 2px;
+        gap: 2px;
+      }
+      .xp i {
+        flex: 1;
+      }
+      .xp i.on {
+        background: var(--bestow);
+      }
+      .hero .breakdown {
+        grid-column: 1 / 4;
+        color: var(--dim);
+        font-size: 1.12rem;
+      }
+      .hero.leader .avatar {
+        animation: bob 1s steps(2) infinite;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-3px);
+        }
+      }
+
+      .trophies {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+        gap: 20px;
+      }
+      .trophy {
+        padding: 10px;
+        text-align: center;
+      }
+      .trophy a {
+        display: block;
+      }
+      .trophy .sprite {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+      }
+      .trophy span {
+        display: block;
+        font-size: 1.1rem;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+      }
+      .trophy small {
+        display: block;
+        color: var(--dim);
+        font-size: 0.95rem;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        width: min(520px, calc(100% - 40px));
+        background: var(--stone);
+        color: var(--text);
+        font-size: 1.35rem;
+        padding: 14px 16px;
+        z-index: 20;
+        box-shadow: var(--ring);
+        display: none;
+      }
+      .toast.show {
+        display: block;
+      }
+      .toast::after {
+        content: " ▼";
+        color: var(--loot);
+        animation: flicker 0.8s steps(2) infinite;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 12, 26, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 30;
+      }
+      .overlay.open {
+        display: flex;
+      }
+      .picker {
+        width: 100%;
+        max-width: 400px;
+        padding: 22px 20px;
+      }
+      .picker h2 {
+        margin-top: 0;
+        text-align: center;
+      }
+      .picker button {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        margin-top: 12px;
+        padding: 12px;
+        cursor: pointer;
+        text-align: left;
+        font: 400 1.4rem var(--term);
+        background: var(--stone);
+        color: var(--text);
+        border: 3px solid var(--dim);
+        border-radius: 0;
+      }
+      .picker button:hover,
+      .picker button:focus-visible {
+        border-color: var(--loot);
+        color: var(--loot);
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible,
+      a:focus-visible {
+        outline: 3px dashed var(--loot);
+        outline-offset: 6px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .torch,
+        .toast::after,
+        .boss.hit,
+        .hero.leader .avatar {
+          animation: none;
+        }
+        .act:active {
+          transform: none;
+        }
+      }
+
+      /* Printable box labels */
+      #labels {
+        display: none;
+      }
+      .label {
+        border: 1.5mm solid #000;
+        padding: 6mm;
+        height: 128mm;
+        margin-bottom: 8mm;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+        font-family: var(--term);
+        color: #000;
+        background: #fff;
+      }
+      .lab-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 6mm;
+        border-bottom: 1mm solid #000;
+        padding-bottom: 3mm;
+      }
+      .lab-num {
+        font-family: var(--pixel);
+        font-size: 26pt;
+      }
+      .lab-room {
+        font-family: var(--pixel);
+        font-size: 11pt;
+        text-align: right;
+        line-height: 1.5;
+      }
+      .lab-body {
+        display: flex;
+        gap: 6mm;
+        flex: 1;
+        padding-top: 4mm;
+        overflow: hidden;
+      }
+      .lab-body ul {
+        flex: 1;
+        margin: 0;
+        padding-left: 5mm;
+        font-size: 15pt;
+        line-height: 1.15;
+        columns: 2;
+        column-gap: 6mm;
+      }
+      .lab-qr {
+        width: 42mm;
+        flex: none;
+        text-align: center;
+        font-size: 11pt;
+      }
+      .lab-qr svg {
+        width: 42mm;
+        height: 42mm;
+        display: block;
+        margin-bottom: 2mm;
+      }
+      .lab-foot {
+        font-size: 12pt;
+        margin-top: 3mm;
+      }
+      @media print {
+        @page {
+          size: A4;
+          margin: 12mm;
+        }
+        body {
+          background: #fff !important;
+          color: #000;
+          padding: 0;
+        }
+        .wrap,
+        .toast,
+        .overlay {
+          display: none !important;
+        }
+        #labels {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>
+          <span class="torch" aria-hidden="true">🔥</span> Kill it With Fire
+          <span class="torch" aria-hidden="true">🔥</span
+          ><small>We are so good at moving house</small>
+        </h1>
+        <div class="hero-bar px">
+          <span class="me"
+            ><span id="meAvatar"></span
+            ><span
+              ><strong id="meName">…</strong
+              ><span class="kind" id="meKind"></span></span
+          ></span>
+          <span class="hero-tools">
+            <button
+              class="icon-btn"
+              type="button"
+              data-act="sound"
+              id="soundBtn"
+              aria-label="Sound on"
+            >
+              🔊
+            </button>
+            <button class="linkish" type="button" data-act="switch">
+              Change hero
+            </button>
+          </span>
+        </div>
+        <p class="demo-note" id="demoNote" hidden>
+          Practice mode: progress saves on this device only. Add the Apps Script
+          URL to play together.
+        </p>
+      </header>
+
+      <nav role="tablist" id="tabs">
+        <button role="tab" type="button" data-act="tab" data-tab="quest">
+          Quest
+        </button>
+        <button role="tab" type="button" data-act="tab" data-tab="tribunal">
+          Tribunal<span class="badge" id="badge-tribunal" hidden></span>
+        </button>
+        <button role="tab" type="button" data-act="tab" data-tab="merchant">
+          Merchant<span class="badge" id="badge-merchant" hidden></span>
+        </button>
+        <button role="tab" type="button" data-act="tab" data-tab="packing">
+          Packing
+        </button>
+        <button role="tab" type="button" data-act="tab" data-tab="final">
+          Final boss
+        </button>
+        <button role="tab" type="button" data-act="tab" data-tab="hall">
+          Heroes
+        </button>
+      </nav>
+
+      <!-- QUEST -->
+      <section data-view="quest">
+        <div class="panel px">
+          <span class="step">Enter a room</span>
+          <div class="rooms" id="rooms" role="group" aria-label="Room"></div>
+        </div>
+        <div class="boss px" id="boss" hidden></div>
+        <div class="panel px">
+          <label class="step" for="itemInput">Name the item</label>
+          <input
+            type="text"
+            id="itemInput"
+            maxlength="120"
+            placeholder="a cursed third blender"
+            autocomplete="off"
+          />
+          <div class="photo-row">
+            <label class="snap"
+              ><input
+                type="file"
+                id="photoInput"
+                accept="image/*"
+                capture="environment"
+              /><span id="snapLabel">📷 Add photo</span></label
+            >
+            <div class="photo-preview" id="photoPreview"></div>
+          </div>
+        </div>
+        <span class="step" style="text-align: center">Choose its fate</span>
+        <div class="actions" id="actions"></div>
+        <div id="combo"></div>
+        <h2>Quest log</h2>
+        <ul class="log px" id="feed"></ul>
+      </section>
+
+      <!-- TRIBUNAL -->
+      <section data-view="tribunal" hidden>
+        <p class="intro" id="tribunalIntro"></p>
+        <div id="cases"></div>
+        <h2>Recent verdicts</h2>
+        <div id="verdicts"></div>
+      </section>
+
+      <!-- MERCHANT -->
+      <section data-view="merchant" hidden>
+        <div class="treasury px" id="treasury"></div>
+        <p class="intro" id="merchantIntro"></p>
+        <div id="listed"></div>
+        <h2>Sales ledger</h2>
+        <div id="ledger"></div>
+      </section>
+
+      <!-- PACKING -->
+      <section data-view="packing" hidden>
+        <div class="panel px">
+          <span class="step">Start a box</span>
+          <div class="new-box">
+            <select id="boxRoom" aria-label="Room for the new box"></select>
+            <button type="button" class="act small gold" data-act="box-new">
+              <span class="word" id="newBoxLabel">📦 Pack a new box</span>
+            </button>
+          </div>
+        </div>
+        <div class="panel px">
+          <label class="step" for="boxSearch">Find something</label>
+          <input
+            type="search"
+            id="boxSearch"
+            placeholder="Where's the kettle?"
+            autocomplete="off"
+          />
+        </div>
+        <div class="btn-row" style="margin-bottom: 26px">
+          <button type="button" class="act small plain" data-act="print-all">
+            <span class="word">🖨 Print all labels</span>
+          </button>
+        </div>
+        <div id="boxList"></div>
+      </section>
+
+      <!-- FINAL BOSS -->
+      <section data-view="final" hidden>
+        <div class="boss px" id="finalBoss"></div>
+        <p class="intro" id="finalIntro"></p>
+        <div id="bondList"></div>
+      </section>
+
+      <!-- HALL -->
+      <section data-view="hall" hidden>
+        <div class="tally" id="tally"></div>
+        <div id="board"></div>
+        <h2>Dungeon map</h2>
+        <div class="map" id="map"></div>
+        <h2>Trophy room</h2>
+        <div class="trophies" id="trophies"></div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <div class="overlay" id="overlay">
+      <div
+        class="picker px"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pickTitle"
+      >
+        <h2 id="pickTitle">Choose your hero</h2>
+        <div id="playerButtons"></div>
+      </div>
+    </div>
+
+    <div id="labels"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <script>
+      /* Paste your Apps Script web app URL here. Leave empty for practice mode. */
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbwWTlqgpkAuQ3-xZUkhhlMbcZHht6hRc4ubKkegMKCREoTiR28YTjiATtaq2ztc9vHqKQ/exec";
+
+      const DEMO = !API_URL;
+
+      /* 8-bit hero sprites, keyed by first name ("Caitlin" matches "Caitlin the Changeling").
+   Each row is 12 pixels; '.' is transparent and every other letter is a palette colour. */
+      const AVATARS = {
+        Caitlin: {
+          kind: "Changeling",
+          palette: {
+            k: "#1A1626",
+            h: "#F4F1FF",
+            s: "#C9C3E0",
+            d: "#9F97C2",
+            e: "#7FE7FF",
+            p: "#7A4FC9",
+            q: "#523090",
+            w: "#FFFFFF",
+          },
+          rows: [
+            "...kkkkkk...",
+            "..khhhhhhk..",
+            ".khhhhhhhhk.",
+            ".khsssssshk.",
+            "khseesseeshk",
+            "khsssssssshk",
+            "khhssddsshhk",
+            "khhhsssshhhk",
+            ".khkppppkhk.",
+            ".kpppwppppk.",
+            "kpppppwpppqk",
+            "kpqpppppqpqk",
+            "kpqpppppqpqk",
+            "kqqpppppqqqk",
+            ".kkqq..qqkk.",
+            "..kkk..kkk..",
+          ],
+        },
+        Grace: {
+          kind: "Grung",
+          palette: {
+            k: "#1A1626",
+            b: "#3FA9F5",
+            B: "#1F6FB8",
+            y: "#FFE066",
+            e: "#FFFFFF",
+            v: "#8A5A2E",
+          },
+          rows: [
+            ".kkk....kkk.",
+            "keeekkkkeeek",
+            "kekebbbbekek",
+            "kbbbbbbbbbbk",
+            "kbBbbbbbbBbk",
+            "kbkkkkkkkkbk",
+            ".kbbbbbbbbk.",
+            "..kbbbbbbk..",
+            ".kbkyyyykbk.",
+            "kbbkyyyykbbk",
+            "kbBkyyyykBbk",
+            ".kkyyyyyykk.",
+            "..kvvvvvvk..",
+            "..kbbkkbbk..",
+            ".kbbk..kbbk.",
+            "kbbbk..kbbbk",
+          ],
+        },
+        Hannah: {
+          kind: "Halfling",
+          palette: {
+            k: "#1A1626",
+            h: "#6B3F1D",
+            H: "#9A6230",
+            s: "#F2C29B",
+            r: "#E8907E",
+            g: "#3E8E4E",
+            G: "#28663A",
+            v: "#8A5A2E",
+          },
+          rows: [
+            "..khkhhkhk..",
+            ".khHhhHhhHk.",
+            "khHhhhhhhhHk",
+            "khhsssssshhk",
+            "khsskssksshk",
+            "kssrssssrssk",
+            ".kssskksssk.",
+            "..kssssssk..",
+            ".kgkvvvvkgk.",
+            "kggkvvvvkggk",
+            "kgGksvvskGgk",
+            "kgGgvvvvgGgk",
+            "kgGgvvvvgGgk",
+            ".kGgkkkkgGk.",
+            "..ksk..ksk..",
+            ".kssk..kssk.",
+          ],
+        },
+      };
+
+      /* The final boss sprite */
+      const PM_SPRITE = {
+        kind: "Final boss",
+        palette: {
+          k: "#1A1626",
+          h: "#4A4A5A",
+          s: "#E8B48A",
+          w: "#FFFFFF",
+          t: "#6B6F80",
+          T: "#4A4D5C",
+          c: "#B07F45",
+          p: "#FFFFFF",
+          r: "#E0453A",
+        },
+        rows: [
+          "...kkkkkk...",
+          "..khhhhhhk..",
+          ".khhhhhhhhk.",
+          ".khsssssshk.",
+          "kskwkkkkwksk",
+          "kssssssssssk",
+          ".kssskkkssk.",
+          "..kssssssk..",
+          ".kttkrrkttk.",
+          "kttTtrrtTttk",
+          "kcppckrtTttk",
+          "kcpkpcrtTttk",
+          "kcppcktttTtk",
+          ".kccckttTtk.",
+          "..kTTk.kTTk.",
+          ".kkkk..kkkk.",
+        ],
+      };
+
+      const FATE = {
+        dump: { icon: "💀", word: "Banish", done: "banished" },
+        donate: { icon: "🕊️", word: "Bestow", done: "bestowed" },
+        sell: { icon: "💰", word: "Sell", done: "listed" },
+        keep: { icon: "🎒", word: "Stash", done: "stashed" },
+        tribunal: {
+          icon: "⚖️",
+          word: "Tribunal",
+          done: "took to the Tribunal",
+        },
+      };
+
+      const DEMO_CONFIG = {
+        players: [
+          "Caitlin the Changeling",
+          "Grace the Grung",
+          "Hannah the Halfling",
+        ],
+        bosses: [
+          { room: "Kitchen", hp: 125, boss: "Night Claw The Whooping Rat" },
+          {
+            room: "Lounge (upper)",
+            hp: 50,
+            boss: "Ghoulface the Corrupt Beholder",
+          },
+          { room: "Lounge (lower)", hp: 100, boss: "Syphillis the Penguin" },
+          { room: "Bathroom", hp: 60, boss: "Plague Scale the Cursed Glob" },
+          {
+            room: "Caitlins Bedroom",
+            hp: 100,
+            boss: "Soil Face the Nightmare Man",
+          },
+          {
+            room: "Graces Bedroom",
+            hp: 250,
+            boss: "Gross Mutant the Rotten Serpent",
+          },
+          { room: "Hannahs bedroom", hp: 150, boss: "Moonloo the Crying Worm" },
+          { room: "Black thing", hp: 75, boss: "The Thing in the Black" },
+          { room: "Fun Garage", hp: 100, boss: "Rotfeet the Rusty" },
+          { room: "Hole", hp: 250, boss: "The Garbage Leviathan" },
+          {
+            room: "Cupboard Under Stairs",
+            hp: 20,
+            boss: "Harry Potters House",
+          },
+        ],
+        points: { dump: 5, donate: 4, sell: 3, keep: 0, box: 5, bondTask: 3 },
+        combo: { windowSeconds: 90, critChance: 0.1 },
+        finalBoss: "The Property Manager",
+        bondTasks: [
+          ["Kitchen", "Oven, racks and trays degreased"],
+          ["Kitchen", "Stovetop and rangehood filter"],
+          ["Kitchen", "Fridge inside, outside and behind"],
+          ["Kitchen", "Cupboards and drawers wiped out"],
+          ["Kitchen", "Benches, splashback, sink and taps"],
+          ["Bathroom", "Shower, glass and grout"],
+          ["Bathroom", "Toilet, inside and out"],
+          ["Bathroom", "Basin, mirror and cabinet"],
+          ["Bathroom", "Extractor fan and any mould spots"],
+          ["Throughout", "Walls spot-cleaned and scuffs removed"],
+          ["Throughout", "Hooks, Blu Tack and tape removed"],
+          ["Throughout", "Skirting boards and light switches"],
+          ["Throughout", "Windows, sills and tracks"],
+          ["Throughout", "Curtains or blinds cleaned"],
+          ["Throughout", "Wardrobes and shelves emptied and wiped"],
+          ["Throughout", "Floors vacuumed and mopped"],
+          ["Outside", "Garage swept out"],
+          ["Outside", "Hole completely emptied"],
+          ["Outside", "Lawns and gardens tidied"],
+          ["Outside", "Bins emptied and rubbish gone"],
+          ["Handover", "All keys and remotes returned"],
+        ],
+      };
+
+      let state = {
+        players: [],
+        rooms: [],
+        bosses: [],
+        points: {},
+        combo: { windowSeconds: 90 },
+        finalBoss: "",
+        items: [],
+        boxes: [],
+        bond: [],
+      };
+      let me = lsGet("dd-me");
+      let room = lsGet("dd-room");
+      let tab = lsGet("dd-tab") || "quest";
+      let busy = false;
+      let photo = null; // { full, sprite } for the item being sorted
+      let openBox = null; // id of the expanded box
+      const drafts = {}; // unsaved text in box and price fields
+      let pendingBoxQuery = new URLSearchParams(location.search).get("box");
+      let comboTimer;
+
+      const $ = (id) => document.getElementById(id);
+
+      /* ---------- small helpers ---------- */
+      function lsGet(k) {
+        try {
+          return JSON.parse(localStorage.getItem(k));
+        } catch (e) {
+          return null;
+        }
+      }
+      function lsSet(k, v) {
+        try {
+          localStorage.setItem(k, JSON.stringify(v));
+        } catch (e) {}
+      }
+      function esc(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+      function short(name) {
+        return String(name).split(" ")[0];
+      }
+      function nzTime(iso) {
+        return new Date(iso).toLocaleString("en-NZ", {
+          timeZone: "Pacific/Auckland",
+          weekday: "short",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+      }
+      const NZD = new Intl.NumberFormat("en-NZ", {
+        style: "currency",
+        currency: "NZD",
+      });
+      function money(n) {
+        return NZD.format(n || 0);
+      }
+      function comboMult(c) {
+        return Math.min(3, 1 + Math.floor((c - 1) / 3) * 0.5);
+      }
+      const XP_PER_LEVEL = 20;
+      function levelOf(xp) {
+        return Math.floor(xp / XP_PER_LEVEL) + 1;
+      }
+      function lines(text) {
+        return String(text || "")
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+
+      /* ---------- sprites ---------- */
+      function avatarFor(name) {
+        if (AVATARS[name]) return AVATARS[name];
+        const key = Object.keys(AVATARS).find((k) =>
+          String(name).startsWith(k + " "),
+        );
+        return key ? AVATARS[key] : null;
+      }
+      function spriteSvg(a, size, label) {
+        if (!a) return "";
+        let rects = "";
+        a.rows.forEach((row, y) => {
+          let x = 0;
+          while (x < row.length) {
+            const ch = row[x];
+            let run = 1;
+            while (row[x + run] === ch) run++;
+            if (ch !== "." && a.palette[ch])
+              rects += `<rect x="${x + 2}" y="${y}" width="${run}" height="1" fill="${a.palette[ch]}"/>`;
+            x += run;
+          }
+        });
+        return `<svg class="avatar" width="${size}" height="${size}" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="${esc(label)}">${rects}</svg>`;
+      }
+      function avatarSvg(name, size = 48) {
+        const a = avatarFor(name);
+        return a ? spriteSvg(a, size, `${name} the ${a.kind}`) : "";
+      }
+      function kindOf(name) {
+        const a = avatarFor(name);
+        if (!a) return "";
+        return String(name).toLowerCase().includes(a.kind.toLowerCase())
+          ? ""
+          : a.kind;
+      }
+      function spriteImg(i, cls = "sprite") {
+        if (!i.photo) return "";
+        const img = `<img class="${cls}" src="${esc(i.photo)}" alt="${esc(i.item)}" loading="lazy">`;
+        return i.photoFull
+          ? `<a href="${esc(i.photoFull)}" target="_blank" rel="noopener" aria-label="Open photo of ${esc(i.item)}">${img}</a>`
+          : img;
+      }
+
+      /* ---------- chiptune sound ---------- */
+      const Sfx = {
+        ctx: null,
+        on: lsGet("dd-sound") !== false,
+        audio() {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            this.ctx = new AC();
+          }
+          if (this.ctx.state === "suspended") this.ctx.resume();
+          return this.ctx;
+        },
+        note(freq, at, dur, opts = {}) {
+          const c = this.audio();
+          if (!c) return;
+          const t = c.currentTime + at,
+            o = c.createOscillator(),
+            g = c.createGain();
+          o.type = opts.type || "square";
+          o.frequency.setValueAtTime(freq, t);
+          if (opts.to)
+            o.frequency.exponentialRampToValueAtTime(opts.to, t + dur);
+          g.gain.setValueAtTime(opts.vol || 0.05, t);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(g).connect(c.destination);
+          o.start(t);
+          o.stop(t + dur + 0.05);
+        },
+        noise(at, dur, vol = 0.07) {
+          const c = this.audio();
+          if (!c) return;
+          const buf = c.createBuffer(
+            1,
+            Math.floor(c.sampleRate * dur),
+            c.sampleRate,
+          );
+          const d = buf.getChannelData(0);
+          for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+          const src = c.createBufferSource(),
+            g = c.createGain(),
+            t = c.currentTime + at;
+          src.buffer = buf;
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          src.connect(g).connect(c.destination);
+          src.start(t);
+        },
+        play(name, arg) {
+          if (!this.on) return;
+          try {
+            (SOUNDS[name] || (() => {}))(arg);
+          } catch (e) {}
+        },
+      };
+      const N = (f, at, dur, o) => Sfx.note(f, at, dur, o);
+      const SOUNDS = {
+        dump() {
+          Sfx.noise(0, 0.18);
+          N(330, 0, 0.25, { to: 60 });
+        },
+        donate() {
+          [523, 659, 784, 1047].forEach((f, i) =>
+            N(f, i * 0.07, 0.12, { type: "triangle", vol: 0.07 }),
+          );
+        },
+        sell() {
+          N(988, 0, 0.08);
+          N(1319, 0.08, 0.28);
+        },
+        keep() {
+          N(392, 0, 0.08);
+          N(294, 0.09, 0.14);
+        },
+        tribunal() {
+          N(196, 0, 0.12, { type: "triangle", vol: 0.09 });
+          N(196, 0.18, 0.2, { type: "triangle", vol: 0.09 });
+        },
+        vote() {
+          N(660, 0, 0.06);
+          N(880, 0.06, 0.1);
+        },
+        tick() {
+          N(784, 0, 0.05);
+          N(1175, 0.05, 0.12, { type: "triangle" });
+        },
+        box() {
+          N(110, 0, 0.16, { to: 55, vol: 0.09 });
+          Sfx.noise(0, 0.06, 0.05);
+        },
+        crit() {
+          N(1800, 0, 0.16, { to: 300 });
+          Sfx.noise(0.02, 0.12, 0.06);
+        },
+        combo(n) {
+          N(440 * Math.pow(2, Math.min(n, 15) / 12), 0.12, 0.1, { vol: 0.04 });
+        },
+        levelUp() {
+          [523, 659, 784, 1047, 1319].forEach((f, i) =>
+            N(f, 0.25 + i * 0.06, 0.12),
+          );
+        },
+        fanfare() {
+          [
+            [523, 0, 0.1],
+            [523, 0.12, 0.1],
+            [523, 0.24, 0.1],
+            [698, 0.36, 0.32],
+            [784, 0.72, 0.14],
+            [698, 0.88, 0.12],
+            [784, 1.02, 0.6],
+          ].forEach(([f, a, d]) => N(f, a + 0.2, d, { vol: 0.06 }));
+        },
+        error() {
+          N(150, 0, 0.22, { type: "sawtooth", vol: 0.04 });
+        },
+      };
+
+      /* ---------- practice-mode backend (mirrors Code.gs) ---------- */
+      function demoDb() {
+        const db = lsGet("dd-demo-db") || {
+          items: lsGet("dd-demo-items") || [],
+          boxes: [],
+          bond: DEMO_CONFIG.bondTasks.map(([area, task], n) => ({
+            id: "t" + n,
+            area,
+            task,
+            doneBy: "",
+            ts: "",
+          })),
+        };
+        db.items.forEach((i) => {
+          i.combo = i.combo || 1;
+          i.status = i.status || "";
+          i.votes = i.votes || {};
+        });
+        return db;
+      }
+      function uid() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      }
+      function demoApi(b) {
+        const db = demoDb(),
+          P = DEMO_CONFIG.points,
+          players = DEMO_CONFIG.players;
+        const find = (list, id) => list.find((x) => x.id === id);
+        if (b) {
+          if (b.action === "add") {
+            const mine = db.items.filter((i) => i.player === b.player),
+              prev = mine[mine.length - 1];
+            const combo =
+              prev &&
+              (Date.now() - Date.parse(prev.ts)) / 1000 <=
+                DEMO_CONFIG.combo.windowSeconds
+                ? prev.combo + 1
+                : 1;
+            const trib = b.decision === "tribunal";
+            const crit =
+              !trib &&
+              b.decision !== "keep" &&
+              Math.random() < DEMO_CONFIG.combo.critChance;
+            db.items.push({
+              id: uid(),
+              ts: new Date().toISOString(),
+              player: b.player,
+              item: (b.item || "").trim() || "Mystery item",
+              room: b.room,
+              decision: b.decision,
+              points: Math.round(
+                (trib ? 0 : P[b.decision]) * comboMult(combo) * (crit ? 2 : 1),
+              ),
+              photo: b.photo || "",
+              photoFull: "",
+              status: b.decision === "sell" ? "listed" : trib ? "pending" : "",
+              soldFor: 0,
+              combo,
+              crit,
+              votes: {},
+            });
+          } else if (b.action === "undo") {
+            db.items = db.items.filter(
+              (i) => !(i.id === b.id && i.player === b.player),
+            );
+          } else if (b.action === "vote") {
+            const i = find(db.items, b.id);
+            if (i && i.decision === "tribunal") {
+              i.votes[b.player] = b.vote;
+              const need = Math.floor(players.length / 2) + 1,
+                n = (v) => Object.values(i.votes).filter((x) => x === v).length;
+              if (n("banish") >= need)
+                Object.assign(i, {
+                  decision: "dump",
+                  points: P.dump,
+                  status: "verdict",
+                });
+              else if (n("spare") >= need)
+                Object.assign(i, {
+                  decision: "keep",
+                  points: 0,
+                  status: "verdict",
+                });
+            }
+          } else if (b.action === "sold") {
+            const i = find(db.items, b.id);
+            if (i)
+              Object.assign(i, {
+                status: "sold",
+                soldFor: Math.max(0, Number(b.price) || 0),
+              });
+          } else if (b.action === "giveup") {
+            const i = find(db.items, b.id);
+            if (i)
+              Object.assign(i, {
+                decision: "donate",
+                points: P.donate,
+                status: "",
+              });
+          } else if (b.action === "box_add") {
+            const next =
+              db.boxes.reduce((m, x) => Math.max(m, x.number), 0) + 1;
+            db.boxes.push({
+              id: uid(),
+              number: next,
+              room: b.room,
+              contents: "",
+              packedBy: b.player,
+              ts: new Date().toISOString(),
+            });
+          } else if (b.action === "box_update") {
+            const x = find(db.boxes, b.id);
+            if (x) x.contents = b.contents || "";
+          } else if (b.action === "box_delete") {
+            db.boxes = db.boxes.filter((x) => x.id !== b.id);
+          } else if (b.action === "bond_toggle") {
+            const t = find(db.bond, b.id);
+            if (t && !t.doneBy)
+              Object.assign(t, {
+                doneBy: b.player,
+                ts: new Date().toISOString(),
+              });
+            else if (t && t.doneBy === b.player)
+              Object.assign(t, { doneBy: "", ts: "" });
+            else if (t)
+              return Promise.reject(
+                new Error(short(t.doneBy) + " already ticked that one."),
+              );
+          }
+          lsSet("dd-demo-db", db);
+        }
+        const { bondTasks, ...cfg } = DEMO_CONFIG;
+        return Promise.resolve(
+          Object.assign(
+            { ok: true },
+            cfg,
+            { rooms: cfg.bosses.map((x) => x.room) },
+            db,
+          ),
+        );
+      }
+
+      /* ---------- talking to the sheet ---------- */
+      async function api(body) {
+        if (DEMO) return demoApi(body);
+        const res = body
+          ? await fetch(API_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(body),
+            })
+          : await fetch(API_URL);
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "The sheet rejected that.");
+        return data;
+      }
+      async function refresh() {
+        try {
+          state = await api();
+          render();
+          handleBoxQuery();
+        } catch (e) {
+          toast(
+            "The portal to the sheet is closed. Check the Apps Script URL and your connection.",
+          );
+        }
+      }
+      async function act(body) {
+        busy = true;
+        try {
+          state = await api(Object.assign({ player: me }, body));
+          return true;
+        } catch (e) {
+          toast(e.message);
+          Sfx.play("error");
+          return false;
+        } finally {
+          busy = false;
+          render();
+        }
+      }
+
+      /* ---------- derived numbers ---------- */
+      function itemXP(i) {
+        if (i.decision === "tribunal") return 0;
+        if (i.decision === "sell" && i.status !== "sold") return 0;
+        return i.points;
+      }
+      function heroStats(p) {
+        const items = state.items.filter((i) => i.player === p);
+        const boxes = state.boxes.filter((b) => b.packedBy === p).length;
+        const tasks = state.bond.filter((t) => t.doneBy === p).length;
+        const n = (d) => items.filter((i) => i.decision === d).length;
+        return {
+          name: p,
+          boxes,
+          tasks,
+          xp:
+            items.reduce((s, i) => s + itemXP(i), 0) +
+            boxes * (state.points.box || 0) +
+            tasks * (state.points.bondTask || 0),
+          dump: n("dump"),
+          donate: n("donate"),
+          keep: n("keep"),
+          sold: items.filter(
+            (i) => i.decision === "sell" && i.status === "sold",
+          ).length,
+          gone: items.filter((i) =>
+            ["dump", "donate", "sell"].includes(i.decision),
+          ).length,
+          bestCombo: items.reduce((m, i) => Math.max(m, i.combo || 1), 0),
+        };
+      }
+      function bossOf(r) {
+        const b = (state.bosses || []).find((x) => x.room === r);
+        if (!b) return null;
+        const dmg = state.items.filter(
+          (i) => i.room === r && i.decision !== "tribunal",
+        ).length;
+        if (!b.hp)
+          return Object.assign({}, b, {
+            dmg,
+            left: 0,
+            dead: false,
+            unset: true,
+          });
+        return Object.assign({}, b, {
+          dmg,
+          left: Math.max(0, b.hp - dmg),
+          dead: dmg >= b.hp,
+        });
+      }
+      function finalBossOf() {
+        const hp = state.bond.length,
+          dmg = state.bond.filter((t) => t.doneBy).length;
+        return {
+          room: "The house",
+          boss: state.finalBoss || "The Property Manager",
+          hp,
+          dmg,
+          left: Math.max(0, hp - dmg),
+          dead: hp > 0 && dmg >= hp,
+          unset: !hp,
+        };
+      }
+      function comboState() {
+        const mine = state.items.filter((i) => i.player === me);
+        const last = mine[mine.length - 1];
+        if (!last || (last.combo || 1) < 2) return null;
+        const win = (state.combo && state.combo.windowSeconds) || 90;
+        const remaining = win - (Date.now() - Date.parse(last.ts)) / 1000;
+        if (remaining <= 0) return null;
+        return {
+          combo: last.combo,
+          next: comboMult(last.combo + 1),
+          remaining,
+          win,
+        };
+      }
+      function pendingFor(p) {
+        return state.items.filter(
+          (i) => i.decision === "tribunal" && !(i.votes || {})[p],
+        );
+      }
+
+      /* ---------- shared pieces ---------- */
+      function hpBar(b, segs = 20) {
+        const on = b.left > 0 ? Math.ceil((b.left / b.hp) * segs) : 0;
+        return `<div class="hp" role="img" aria-label="${b.left} of ${b.hp} HP left">${Array.from(
+          { length: segs },
+          (_, n) => `<i class="${n < on ? "on" : ""}"></i>`,
+        ).join("")}</div>`;
+      }
+      function bossCard(b, segs, unit = "sorted") {
+        if (b.unset)
+          return `<div class="bname">${esc(b.boss)}</div>
     <div class="sub">${esc(b.room)}: ${b.dmg} ${unit}. This boss's HP isn't set yet, so add it in the Sheet.</div>`;
-  const extra = b.dmg > b.hp ? `, plus ${b.dmg - b.hp} stragglers` : '';
-  return `<div class="bname">${esc(b.boss)}</div>
+        const extra = b.dmg > b.hp ? `, plus ${b.dmg - b.hp} stragglers` : "";
+        return `<div class="bname">${esc(b.boss)}</div>
     <div class="hpline"><span>HP</span>${hpBar(b, segs)}<span>${b.left}/${b.hp}</span></div>
-    ${b.dead
-      ? `<div class="slain">⚔️ Defeated! ${esc(b.room)} is clear</div><div class="sub">${b.dmg} ${unit}${extra}.</div>`
-      : `<div class="sub">${esc(b.room)}: ${b.dmg} ${unit}, ${b.left} to go</div>`}`;
-}
-function itemLine(i) {
-  const who = esc(short(i.player)), name = `<b>${esc(i.item)}</b>`;
-  let what, xp = '';
-  if (i.status === 'verdict') what = `⚖️ The Tribunal ${i.decision === 'dump' ? 'banished' : 'spared'} ${name}`;
-  else if (i.decision === 'sell' && i.status === 'sold') what = `💰 ${who} sold ${name} for ${money(i.soldFor)}`;
-  else what = `${FATE[i.decision] ? FATE[i.decision].icon : '?'} ${who} ${FATE[i.decision] ? FATE[i.decision].done : i.decision} ${name}`;
-  if (i.decision === 'tribunal') xp = 'awaiting a verdict';
-  else if (i.decision === 'sell' && i.status !== 'sold') xp = `+${i.points} XP once sold`;
-  else if (itemXP(i)) xp = `+${itemXP(i)} XP`;
-  const tags = (i.crit ? '<span class="tag crit">Crit</span>' : '') + (comboMult(i.combo || 1) > 1 && i.status !== 'verdict' ? `<span class="tag">×${comboMult(i.combo)}</span>` : '');
-  return { what: what + tags, meta: [esc(i.room), nzTime(i.ts), xp].filter(Boolean).join(', ') };
-}
+    ${
+      b.dead
+        ? `<div class="slain">⚔️ Defeated! ${esc(b.room)} is clear</div><div class="sub">${b.dmg} ${unit}${extra}.</div>`
+        : `<div class="sub">${esc(b.room)}: ${b.dmg} ${unit}, ${b.left} to go</div>`
+    }`;
+      }
+      function itemLine(i) {
+        const who = esc(short(i.player)),
+          name = `<b>${esc(i.item)}</b>`;
+        let what,
+          xp = "";
+        if (i.status === "verdict")
+          what = `⚖️ The Tribunal ${i.decision === "dump" ? "banished" : "spared"} ${name}`;
+        else if (i.decision === "sell" && i.status === "sold")
+          what = `💰 ${who} sold ${name} for ${money(i.soldFor)}`;
+        else
+          what = `${FATE[i.decision] ? FATE[i.decision].icon : "?"} ${who} ${FATE[i.decision] ? FATE[i.decision].done : i.decision} ${name}`;
+        if (i.decision === "tribunal") xp = "awaiting a verdict";
+        else if (i.decision === "sell" && i.status !== "sold")
+          xp = `+${i.points} XP once sold`;
+        else if (itemXP(i)) xp = `+${itemXP(i)} XP`;
+        const tags =
+          (i.crit ? '<span class="tag crit">Crit</span>' : "") +
+          (comboMult(i.combo || 1) > 1 && i.status !== "verdict"
+            ? `<span class="tag">×${comboMult(i.combo)}</span>`
+            : "");
+        return {
+          what: what + tags,
+          meta: [esc(i.room), nzTime(i.ts), xp].filter(Boolean).join(", "),
+        };
+      }
 
-/* ---------- rendering ---------- */
-function render() {
-  if (!me || state.players.indexOf(me) === -1) openPicker();
-  $('meName').textContent = me || '…';
-  $('meAvatar').innerHTML = me ? avatarSvg(me, 44) : '';
-  $('meKind').textContent = me ? kindOf(me) : '';
-  $('soundBtn').textContent = Sfx.on ? '🔊' : '🔇';
-  $('soundBtn').setAttribute('aria-label', Sfx.on ? 'Sound on' : 'Sound off');
-  if (room && state.rooms.indexOf(room) === -1) room = null;
+      /* ---------- rendering ---------- */
+      function render() {
+        if (!me || state.players.indexOf(me) === -1) openPicker();
+        $("meName").textContent = me || "…";
+        $("meAvatar").innerHTML = me ? avatarSvg(me, 44) : "";
+        $("meKind").textContent = me ? kindOf(me) : "";
+        $("soundBtn").textContent = Sfx.on ? "🔊" : "🔇";
+        $("soundBtn").setAttribute(
+          "aria-label",
+          Sfx.on ? "Sound on" : "Sound off",
+        );
+        if (room && state.rooms.indexOf(room) === -1) room = null;
 
-  const pend = me ? pendingFor(me).length : 0;
-  $('badge-tribunal').hidden = !pend; $('badge-tribunal').textContent = pend;
-  const listed = state.items.filter(i => i.decision === 'sell' && i.status !== 'sold').length;
-  $('badge-merchant').hidden = !listed; $('badge-merchant').textContent = listed;
-  document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
-  document.querySelectorAll('[data-view]').forEach(s => { s.hidden = s.dataset.view !== tab; });
+        const pend = me ? pendingFor(me).length : 0;
+        $("badge-tribunal").hidden = !pend;
+        $("badge-tribunal").textContent = pend;
+        const listed = state.items.filter(
+          (i) => i.decision === "sell" && i.status !== "sold",
+        ).length;
+        $("badge-merchant").hidden = !listed;
+        $("badge-merchant").textContent = listed;
+        document
+          .querySelectorAll("[data-tab]")
+          .forEach((b) =>
+            b.setAttribute("aria-selected", String(b.dataset.tab === tab)),
+          );
+        document.querySelectorAll("[data-view]").forEach((s) => {
+          s.hidden = s.dataset.view !== tab;
+        });
 
-  renderQuest(); renderTribunal(); renderMerchant(); renderPacking(); renderFinal(); renderHall();
-}
+        renderQuest();
+        renderTribunal();
+        renderMerchant();
+        renderPacking();
+        renderFinal();
+        renderHall();
+      }
 
-function renderQuest() {
-  $('rooms').innerHTML = state.rooms.map(r =>
-    `<button type="button" class="room${(bossOf(r) || {}).dead ? ' dead' : ''}" aria-pressed="${r === room}" data-act="room" data-room="${esc(r)}">${esc(r)}</button>`).join('');
+      function renderQuest() {
+        $("rooms").innerHTML = state.rooms
+          .map(
+            (r) =>
+              `<button type="button" class="room${(bossOf(r) || {}).dead ? " dead" : ""}" aria-pressed="${r === room}" data-act="room" data-room="${esc(r)}">${esc(r)}</button>`,
+          )
+          .join("");
 
-  const b = room && bossOf(room), el = $('boss');
-  el.hidden = !b;
-  if (b) { el.classList.toggle('dead', b.dead); el.innerHTML = bossCard(b); }
+        const b = room && bossOf(room),
+          el = $("boss");
+        el.hidden = !b;
+        if (b) {
+          el.classList.toggle("dead", b.dead);
+          el.innerHTML = bossCard(b);
+        }
 
-  $('actions').innerHTML = ['dump', 'donate', 'sell', 'keep'].map(d => {
-    const p = state.points[d] || 0;
-    return `<button type="button" class="act" data-act="fate" data-d="${d}" ${busy ? 'disabled' : ''}>
+        $("actions").innerHTML =
+          ["dump", "donate", "sell", "keep"]
+            .map((d) => {
+              const p = state.points[d] || 0;
+              return `<button type="button" class="act" data-act="fate" data-d="${d}" ${busy ? "disabled" : ""}>
       <span class="icon" aria-hidden="true">${FATE[d].icon}</span><span class="word">${FATE[d].word}</span>
-      <span class="pts">${p ? '+' + p + ' XP' + (d === 'sell' ? ' when sold' : '') : '0 XP'}</span></button>`;
-  }).join('') + `<button type="button" class="act wide" data-act="fate" data-d="tribunal" ${busy ? 'disabled' : ''}>
+      <span class="pts">${p ? "+" + p + " XP" + (d === "sell" ? " when sold" : "") : "0 XP"}</span></button>`;
+            })
+            .join("") +
+          `<button type="button" class="act wide" data-act="fate" data-d="tribunal" ${busy ? "disabled" : ""}>
       <span class="icon" aria-hidden="true">⚖️</span><span class="word">Can't agree? Tribunal</span></button>`;
 
-  renderCombo();
+        renderCombo();
 
-  const recent = state.items.slice(-12).reverse();
-  const myLast = [...state.items].reverse().find(i => i.player === me);
-  let feed = $('feed');
-  if (!recent.length) { feed.outerHTML = '<p class="empty px" id="feed">The log is empty. Pick up the nearest thing and decide its fate.</p>'; return; }
-  if (feed.tagName !== 'UL') { feed.outerHTML = '<ul class="log px" id="feed"></ul>'; feed = $('feed'); }
-  feed.innerHTML = recent.map(i => {
-    const l = itemLine(i);
-    const undo = myLast && i.id === myLast.id && i.status !== 'sold' && i.status !== 'verdict'
-      ? `<button type="button" class="linkish undo" data-act="undo" data-id="${esc(i.id)}">Undo</button>` : '';
-    return `<li>${spriteImg(i)}<span class="txt"><span class="what">${l.what}</span><span class="meta">${l.meta}</span></span>${undo}</li>`;
-  }).join('');
-}
+        const recent = state.items.slice(-12).reverse();
+        const myLast = [...state.items].reverse().find((i) => i.player === me);
+        let feed = $("feed");
+        if (!recent.length) {
+          feed.outerHTML =
+            '<p class="empty px" id="feed">The log is empty. Pick up the nearest thing and decide its fate.</p>';
+          return;
+        }
+        if (feed.tagName !== "UL") {
+          feed.outerHTML = '<ul class="log px" id="feed"></ul>';
+          feed = $("feed");
+        }
+        feed.innerHTML = recent
+          .map((i) => {
+            const l = itemLine(i);
+            const undo =
+              myLast &&
+              i.id === myLast.id &&
+              i.status !== "sold" &&
+              i.status !== "verdict"
+                ? `<button type="button" class="linkish undo" data-act="undo" data-id="${esc(i.id)}">Undo</button>`
+                : "";
+            return `<li>${spriteImg(i)}<span class="txt"><span class="what">${l.what}</span><span class="meta">${l.meta}</span></span>${undo}</li>`;
+          })
+          .join("");
+      }
 
-function renderCombo() {
-  clearTimeout(comboTimer);
-  const c = comboState();
-  if (!c) { $('combo').innerHTML = ''; $('combo').className = ''; return; }
-  $('combo').className = 'combo px';
-  $('combo').innerHTML = `<strong>🔥 ${c.combo}-hit combo! Next hit ×${c.next}</strong>
-    <div class="combo-bar"><i style="width:${c.remaining / c.win * 100}%; animation-duration:${c.remaining}s"></i></div>`;
-  comboTimer = setTimeout(renderCombo, c.remaining * 1000 + 100);
-}
+      function renderCombo() {
+        clearTimeout(comboTimer);
+        const c = comboState();
+        if (!c) {
+          $("combo").innerHTML = "";
+          $("combo").className = "";
+          return;
+        }
+        $("combo").className = "combo px";
+        $("combo").innerHTML =
+          `<strong>🔥 ${c.combo}-hit combo! Next hit ×${c.next}</strong>
+    <div class="combo-bar"><i style="width:${(c.remaining / c.win) * 100}%; animation-duration:${c.remaining}s"></i></div>`;
+        comboTimer = setTimeout(renderCombo, c.remaining * 1000 + 100);
+      }
 
-function renderTribunal() {
-  const need = Math.floor(state.players.length / 2) + 1;
-  $('tribunalIntro').textContent = `Can't agree on something? Send it here. ${need} matching votes decide its fate. A banish verdict earns whoever brought the case +${state.points.dump || 0} XP.`;
-  const cases = state.items.filter(i => i.decision === 'tribunal').reverse();
-  $('cases').innerHTML = cases.length ? cases.map(i => {
-    const votes = i.votes || {}, mine = votes[me];
-    const voteRow = state.players.map(p =>
-      `<span class="vote">${avatarSvg(p, 28)}${esc(short(p))} ${votes[p] === 'banish' ? '⚔️' : votes[p] === 'spare' ? '🛡️' : '…'}</span>`).join('');
-    return `<div class="card px">
+      function renderTribunal() {
+        const need = Math.floor(state.players.length / 2) + 1;
+        $("tribunalIntro").textContent =
+          `Can't agree on something? Send it here. ${need} matching votes decide its fate. A banish verdict earns whoever brought the case +${state.points.dump || 0} XP.`;
+        const cases = state.items
+          .filter((i) => i.decision === "tribunal")
+          .reverse();
+        $("cases").innerHTML = cases.length
+          ? cases
+              .map((i) => {
+                const votes = i.votes || {},
+                  mine = votes[me];
+                const voteRow = state.players
+                  .map(
+                    (p) =>
+                      `<span class="vote">${avatarSvg(p, 28)}${esc(short(p))} ${votes[p] === "banish" ? "⚔️" : votes[p] === "spare" ? "🛡️" : "…"}</span>`,
+                  )
+                  .join("");
+                return `<div class="card px">
       <div class="card-top">${spriteImg(i)}<div><div class="title">${esc(i.item)}</div>
         <div class="meta">${esc(i.room)}, brought by ${esc(short(i.player))}, ${nzTime(i.ts)}</div></div></div>
       <div class="votes">${voteRow}</div>
       <div class="btn-row">
-        <button type="button" class="act small red" data-act="vote" data-v="banish" data-id="${esc(i.id)}" aria-pressed="${mine === 'banish'}"><span class="word">⚔️ Banish</span></button>
-        <button type="button" class="act small blue" data-act="vote" data-v="spare" data-id="${esc(i.id)}" aria-pressed="${mine === 'spare'}"><span class="word">🛡️ Spare</span></button>
+        <button type="button" class="act small red" data-act="vote" data-v="banish" data-id="${esc(i.id)}" aria-pressed="${mine === "banish"}"><span class="word">⚔️ Banish</span></button>
+        <button type="button" class="act small blue" data-act="vote" data-v="spare" data-id="${esc(i.id)}" aria-pressed="${mine === "spare"}"><span class="word">🛡️ Spare</span></button>
       </div></div>`;
-  }).join('') : '<p class="empty px">No cases before the Tribunal. Peace reigns, for now.</p>';
+              })
+              .join("")
+          : '<p class="empty px">No cases before the Tribunal. Peace reigns, for now.</p>';
 
-  const verdicts = state.items.filter(i => i.status === 'verdict').slice(-6).reverse();
-  $('verdicts').innerHTML = verdicts.length
-    ? `<ul class="log px">${verdicts.map(i => { const l = itemLine(i); return `<li>${spriteImg(i)}<span class="txt"><span class="what">${l.what}</span><span class="meta">${l.meta}</span></span></li>`; }).join('')}</ul>`
-    : '<p class="empty px">No verdicts yet.</p>';
-}
+        const verdicts = state.items
+          .filter((i) => i.status === "verdict")
+          .slice(-6)
+          .reverse();
+        $("verdicts").innerHTML = verdicts.length
+          ? `<ul class="log px">${verdicts
+              .map((i) => {
+                const l = itemLine(i);
+                return `<li>${spriteImg(i)}<span class="txt"><span class="what">${l.what}</span><span class="meta">${l.meta}</span></span></li>`;
+              })
+              .join("")}</ul>`
+          : '<p class="empty px">No verdicts yet.</p>';
+      }
 
-function renderMerchant() {
-  const sold = state.items.filter(i => i.decision === 'sell' && i.status === 'sold');
-  const gold = sold.reduce((s, i) => s + (i.soldFor || 0), 0);
-  $('treasury').innerHTML = `<b>💰 ${money(gold)}</b>in the treasury from ${sold.length} sale${sold.length === 1 ? '' : 's'}`;
-  $('merchantIntro').textContent = 'Sell-pile XP pays out once something actually sells. If it won\'t shift, bestow it instead.';
-  const listed = state.items.filter(i => i.decision === 'sell' && i.status !== 'sold').reverse();
-  $('listed').innerHTML = listed.length ? listed.map(i => `<div class="card px">
+      function renderMerchant() {
+        const sold = state.items.filter(
+          (i) => i.decision === "sell" && i.status === "sold",
+        );
+        const gold = sold.reduce((s, i) => s + (i.soldFor || 0), 0);
+        $("treasury").innerHTML =
+          `<b>💰 ${money(gold)}</b>in the treasury from ${sold.length} sale${sold.length === 1 ? "" : "s"}`;
+        $("merchantIntro").textContent =
+          "Sell-pile XP pays out once something actually sells. If it won't shift, bestow it instead.";
+        const listed = state.items
+          .filter((i) => i.decision === "sell" && i.status !== "sold")
+          .reverse();
+        $("listed").innerHTML = listed.length
+          ? listed
+              .map(
+                (i) => `<div class="card px">
       <div class="card-top">${spriteImg(i)}<div><div class="title">${esc(i.item)}</div>
         <div class="meta">${esc(short(i.player))}'s listing, ${esc(i.room)}, +${i.points} XP when sold</div></div></div>
       <div class="price-row"><span>$</span>
         <input type="number" class="price" inputmode="decimal" min="0" step="0.5" placeholder="Sold for" aria-label="Sale price for ${esc(i.item)}"
-               data-draft="price:${esc(i.id)}" value="${esc(drafts['price:' + i.id] || '')}"></div>
+               data-draft="price:${esc(i.id)}" value="${esc(drafts["price:" + i.id] || "")}"></div>
       <div class="btn-row">
         <button type="button" class="act small gold" data-act="sold" data-id="${esc(i.id)}"><span class="word">💰 Mark sold</span></button>
         <button type="button" class="act small green" data-act="giveup" data-id="${esc(i.id)}"><span class="word">🕊️ Bestow instead</span></button>
-      </div></div>`).join('')
-    : '<p class="empty px">The sell pile is empty. Choose Sell on the Quest tab to list things here.</p>';
-  $('ledger').innerHTML = sold.length
-    ? `<ul class="log px">${sold.slice().reverse().map(i => `<li>${spriteImg(i)}<span class="txt"><span class="what">${esc(i.item)}: <b>${money(i.soldFor)}</b></span><span class="meta">${esc(short(i.player))}, +${i.points} XP</span></span></li>`).join('')}</ul>`
-    : '<p class="empty px">No sales yet.</p>';
-}
+      </div></div>`,
+              )
+              .join("")
+          : '<p class="empty px">The sell pile is empty. Choose Sell on the Quest tab to list things here.</p>';
+        $("ledger").innerHTML = sold.length
+          ? `<ul class="log px">${sold
+              .slice()
+              .reverse()
+              .map(
+                (i) =>
+                  `<li>${spriteImg(i)}<span class="txt"><span class="what">${esc(i.item)}: <b>${money(i.soldFor)}</b></span><span class="meta">${esc(short(i.player))}, +${i.points} XP</span></span></li>`,
+              )
+              .join("")}</ul>`
+          : '<p class="empty px">No sales yet.</p>';
+      }
 
-function renderPacking() {
-  const sel = $('boxRoom'), keep = sel.value || room || state.rooms[0];
-  sel.innerHTML = state.rooms.map(r => `<option ${r === keep ? 'selected' : ''}>${esc(r)}</option>`).join('');
-  $('newBoxLabel').textContent = `📦 Pack a new box (+${state.points.box || 0} XP)`;
+      function renderPacking() {
+        const sel = $("boxRoom"),
+          keep = sel.value || room || state.rooms[0];
+        sel.innerHTML = state.rooms
+          .map(
+            (r) => `<option ${r === keep ? "selected" : ""}>${esc(r)}</option>`,
+          )
+          .join("");
+        $("newBoxLabel").textContent =
+          `📦 Pack a new box (+${state.points.box || 0} XP)`;
 
-  const q = $('boxSearch').value.trim().toLowerCase();
-  let boxes = state.boxes.slice().sort((a, b) => b.number - a.number);
-  if (q) boxes = boxes.filter(b => b.room.toLowerCase().includes(q) || String(b.number) === q || lines(b.contents).some(l => l.toLowerCase().includes(q)));
+        const q = $("boxSearch").value.trim().toLowerCase();
+        let boxes = state.boxes.slice().sort((a, b) => b.number - a.number);
+        if (q)
+          boxes = boxes.filter(
+            (b) =>
+              b.room.toLowerCase().includes(q) ||
+              String(b.number) === q ||
+              lines(b.contents).some((l) => l.toLowerCase().includes(q)),
+          );
 
-  $('boxList').innerHTML = boxes.length ? boxes.map(b => {
-    const things = lines(b.contents), isOpen = openBox === b.id;
-    const found = q ? things.filter(l => l.toLowerCase().includes(q)) : [];
-    const body = isOpen ? `
+        $("boxList").innerHTML = boxes.length
+          ? boxes
+              .map((b) => {
+                const things = lines(b.contents),
+                  isOpen = openBox === b.id;
+                const found = q
+                  ? things.filter((l) => l.toLowerCase().includes(q))
+                  : [];
+                const body = isOpen
+                  ? `
       <label class="step" for="box-${esc(b.id)}" style="margin-top:16px">One thing per line</label>
-      <textarea id="box-${esc(b.id)}" data-draft="box:${esc(b.id)}">${esc(drafts['box:' + b.id] ?? b.contents)}</textarea>
+      <textarea id="box-${esc(b.id)}" data-draft="box:${esc(b.id)}">${esc(drafts["box:" + b.id] ?? b.contents)}</textarea>
       <div class="btn-row">
         <button type="button" class="act small green" data-act="box-save" data-id="${esc(b.id)}"><span class="word">Save box</span></button>
         <button type="button" class="act small plain" data-act="box-print" data-id="${esc(b.id)}"><span class="word">🖨 Label</span></button>
         <button type="button" class="act small red" data-act="box-delete" data-id="${esc(b.id)}"><span class="word">Delete</span></button>
-      </div>` : '';
-    return `<div class="card px" id="boxcard-${esc(b.id)}">
+      </div>`
+                  : "";
+                return `<div class="card px" id="boxcard-${esc(b.id)}">
       <div class="card-top">${avatarSvg(b.packedBy, 40)}<div>
         <div class="box-num">Box ${b.number}</div>
-        <div class="meta">${esc(b.room)}, ${things.length} thing${things.length === 1 ? '' : 's'}, packed by ${esc(short(b.packedBy))}</div></div>
-        <button type="button" class="linkish" data-act="box-toggle" data-id="${esc(b.id)}">${isOpen ? 'Close' : 'Open'}</button></div>
-      ${found.length ? `<ul class="found">${found.slice(0, 6).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+        <div class="meta">${esc(b.room)}, ${things.length} thing${things.length === 1 ? "" : "s"}, packed by ${esc(short(b.packedBy))}</div></div>
+        <button type="button" class="linkish" data-act="box-toggle" data-id="${esc(b.id)}">${isOpen ? "Close" : "Open"}</button></div>
+      ${
+        found.length
+          ? `<ul class="found">${found
+              .slice(0, 6)
+              .map((l) => `<li>${esc(l)}</li>`)
+              .join("")}</ul>`
+          : ""
+      }
       ${body}</div>`;
-  }).join('') : `<p class="empty px">${q ? 'Nothing matches that. Check the spelling, or it might still be loose in a room.' : 'No boxes yet. Start one above, then list what goes in it.'}</p>`;
-}
+              })
+              .join("")
+          : `<p class="empty px">${q ? "Nothing matches that. Check the spelling, or it might still be loose in a room." : "No boxes yet. Start one above, then list what goes in it."}</p>`;
+      }
 
-function renderFinal() {
-  const f = finalBossOf(), el = $('finalBoss');
-  el.classList.toggle('dead', f.dead);
-  el.innerHTML = `<div class="final-head">${spriteSvg(PM_SPRITE, 72, f.boss)}<div>${bossCard(f, 20, 'tasks done')}</div></div>`;
-  const standing = state.rooms.filter(r => { const b = bossOf(r); return b && !b.dead; }).length;
-  $('finalIntro').textContent = (f.dead ? 'The bond is safe. ' : '') +
-    (standing ? `${standing} room boss${standing === 1 ? ' is' : 'es are'} still standing, but you can start cleaning any time. ` : 'Every room boss has fallen. Only the clean remains. ') +
-    `Each task is +${state.points.bondTask || 0} XP. Add or remove tasks in the Bond tab of the Sheet.`;
-  const areas = [...new Set(state.bond.map(t => t.area))];
-  $('bondList').innerHTML = areas.map(a => `<h2>${esc(a)}</h2>` + state.bond.filter(t => t.area === a).map(t =>
-    `<button type="button" class="task${t.doneBy ? ' done' : ''}" data-act="bond" data-id="${esc(t.id)}" aria-pressed="${!!t.doneBy}">
-      <span class="box" aria-hidden="true">${t.doneBy ? '☑' : '☐'}</span><span>${esc(t.task)}</span>
-      ${t.doneBy ? `<span class="by">${avatarSvg(t.doneBy, 24)}${esc(short(t.doneBy))}</span>` : ''}</button>`).join('')).join('');
-}
+      function renderFinal() {
+        const f = finalBossOf(),
+          el = $("finalBoss");
+        el.classList.toggle("dead", f.dead);
+        el.innerHTML = `<div class="final-head">${spriteSvg(PM_SPRITE, 72, f.boss)}<div>${bossCard(f, 20, "tasks done")}</div></div>`;
+        const standing = state.rooms.filter((r) => {
+          const b = bossOf(r);
+          return b && !b.dead;
+        }).length;
+        $("finalIntro").textContent =
+          (f.dead ? "The bond is safe. " : "") +
+          (standing
+            ? `${standing} room boss${standing === 1 ? " is" : "es are"} still standing, but you can start cleaning any time. `
+            : "Every room boss has fallen. Only the clean remains. ") +
+          `Each task is +${state.points.bondTask || 0} XP. Add or remove tasks in the Bond tab of the Sheet.`;
+        const areas = [...new Set(state.bond.map((t) => t.area))];
+        $("bondList").innerHTML = areas
+          .map(
+            (a) =>
+              `<h2>${esc(a)}</h2>` +
+              state.bond
+                .filter((t) => t.area === a)
+                .map(
+                  (t) =>
+                    `<button type="button" class="task${t.doneBy ? " done" : ""}" data-act="bond" data-id="${esc(t.id)}" aria-pressed="${!!t.doneBy}">
+      <span class="box" aria-hidden="true">${t.doneBy ? "☑" : "☐"}</span><span>${esc(t.task)}</span>
+      ${t.doneBy ? `<span class="by">${avatarSvg(t.doneBy, 24)}${esc(short(t.doneBy))}</span>` : ""}</button>`,
+                )
+                .join(""),
+          )
+          .join("");
+      }
 
-function renderHall() {
-  const rows = state.players.map(heroStats).sort((a, b) => b.xp - a.xp || b.gone - a.gone);
-  const gone = state.items.filter(i => ['dump', 'donate', 'sell'].includes(i.decision)).length;
-  const kept = state.items.filter(i => i.decision === 'keep').length;
-  const gold = state.items.filter(i => i.status === 'sold').reduce((s, i) => s + (i.soldFor || 0), 0);
-  $('tally').innerHTML = `<div class="px"><b>${gone}</b>vanquished</div><div class="px"><b>${kept}</b>in the pack</div><div class="px"><b>${money(gold)}</b>treasury</div>`;
+      function renderHall() {
+        const rows = state.players
+          .map(heroStats)
+          .sort((a, b) => b.xp - a.xp || b.gone - a.gone);
+        const gone = state.items.filter((i) =>
+          ["dump", "donate", "sell"].includes(i.decision),
+        ).length;
+        const kept = state.items.filter((i) => i.decision === "keep").length;
+        const gold = state.items
+          .filter((i) => i.status === "sold")
+          .reduce((s, i) => s + (i.soldFor || 0), 0);
+        $("tally").innerHTML =
+          `<div class="px"><b>${gone}</b>vanquished</div><div class="px"><b>${kept}</b>in the pack</div><div class="px"><b>${money(gold)}</b>treasury</div>`;
 
-  $('board').innerHTML = rows.map((r, i) => {
-    const into = r.xp % XP_PER_LEVEL;
-    const pips = Array.from({ length: 10 }, (_, n) => `<i class="${n < Math.floor(into / XP_PER_LEVEL * 10) ? 'on' : ''}"></i>`).join('');
-    const lead = i === 0 && r.xp > 0;
-    return `<div class="hero px ${lead ? 'leader' : ''}">
-      <span class="rank">${lead ? '👑' : i + 1}</span>
+        $("board").innerHTML = rows
+          .map((r, i) => {
+            const into = r.xp % XP_PER_LEVEL;
+            const pips = Array.from(
+              { length: 10 },
+              (_, n) =>
+                `<i class="${n < Math.floor((into / XP_PER_LEVEL) * 10) ? "on" : ""}"></i>`,
+            ).join("");
+            const lead = i === 0 && r.xp > 0;
+            return `<div class="hero px ${lead ? "leader" : ""}">
+      <span class="rank">${lead ? "👑" : i + 1}</span>
       <span class="name">${avatarSvg(r.name, 48)}<span>${esc(r.name)}<span class="kind">${esc(kindOf(r.name))}</span></span></span>
       <span class="lvl">Lv ${levelOf(r.xp)}</span>
       <div class="xpline"><span>XP</span><div class="xp" role="img" aria-label="${into} of ${XP_PER_LEVEL} XP to next level">${pips}</div><span>${r.xp}</span></div>
       <span class="breakdown">💀 ${r.dump} banished, 🕊️ ${r.donate} bestowed, 💰 ${r.sold} sold, 🎒 ${r.keep} stashed, 📦 ${r.boxes} boxes, 🧽 ${r.tasks} tasks, 🔥 best combo ${r.bestCombo}</span>
     </div>`;
-  }).join('');
+          })
+          .join("");
 
-  const f = finalBossOf();
-  $('map').innerHTML = (state.bosses || []).map(x => { const b = bossOf(x.room); return `<div class="boss px${b.dead ? ' dead' : ''}">${bossCard(b, 12)}</div>`; }).join('')
-    + `<div class="boss px${f.dead ? ' dead' : ''}">${bossCard(f, 12, 'tasks done')}</div>`;
+        const f = finalBossOf();
+        $("map").innerHTML =
+          (state.bosses || [])
+            .map((x) => {
+              const b = bossOf(x.room);
+              return `<div class="boss px${b.dead ? " dead" : ""}">${bossCard(b, 12)}</div>`;
+            })
+            .join("") +
+          `<div class="boss px${f.dead ? " dead" : ""}">${bossCard(f, 12, "tasks done")}</div>`;
 
-  const trophies = state.items.filter(i => i.decision === 'dump' && i.photo).reverse();
-  $('trophies').innerHTML = trophies.length
-    ? trophies.map(i => `<div class="trophy px">${spriteImg(i)}<span>${esc(i.item)}</span><small>slain by ${esc(short(i.player))}</small></div>`).join('')
-    : '<p class="empty px">No trophies yet. Snap a photo before you banish something to mount it here.</p>';
-}
+        const trophies = state.items
+          .filter((i) => i.decision === "dump" && i.photo)
+          .reverse();
+        $("trophies").innerHTML = trophies.length
+          ? trophies
+              .map(
+                (i) =>
+                  `<div class="trophy px">${spriteImg(i)}<span>${esc(i.item)}</span><small>slain by ${esc(short(i.player))}</small></div>`,
+              )
+              .join("")
+          : '<p class="empty px">No trophies yet. Snap a photo before you banish something to mount it here.</p>';
+      }
 
-/* ---------- labels ---------- */
-function boxUrl(n) { return location.origin + location.pathname + '?box=' + n; }
-function qrSvg(text) {
-  if (typeof qrcode !== 'function') return '';
-  const q = qrcode(0, 'M'); q.addData(text); q.make();
-  const n = q.getModuleCount(); let d = '';
-  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + 2} ${r + 2}h1v1h-1z`;
-  return `<svg viewBox="0 0 ${n + 4} ${n + 4}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
-}
-function labelHtml(b) {
-  const things = lines(drafts['box:' + b.id] ?? b.contents), shown = things.slice(0, 24);
-  return `<div class="label">
+      /* ---------- labels ---------- */
+      function boxUrl(n) {
+        return location.origin + location.pathname + "?box=" + n;
+      }
+      function qrSvg(text) {
+        if (typeof qrcode !== "function") return "";
+        const q = qrcode(0, "M");
+        q.addData(text);
+        q.make();
+        const n = q.getModuleCount();
+        let d = "";
+        for (let r = 0; r < n; r++)
+          for (let c = 0; c < n; c++)
+            if (q.isDark(r, c)) d += `M${c + 2} ${r + 2}h1v1h-1z`;
+        return `<svg viewBox="0 0 ${n + 4} ${n + 4}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+      }
+      function labelHtml(b) {
+        const things = lines(drafts["box:" + b.id] ?? b.contents),
+          shown = things.slice(0, 24);
+        return `<div class="label">
     <div class="lab-head"><div class="lab-num">Box ${b.number}</div><div class="lab-room">${esc(b.room)}</div></div>
     <div class="lab-body">
-      <ul>${shown.map(l => `<li>${esc(l)}</li>`).join('')}${things.length > shown.length ? `<li>and ${things.length - shown.length} more</li>` : ''}${!things.length ? '<li>Contents not listed yet</li>' : ''}</ul>
+      <ul>${shown.map((l) => `<li>${esc(l)}</li>`).join("")}${things.length > shown.length ? `<li>and ${things.length - shown.length} more</li>` : ""}${!things.length ? "<li>Contents not listed yet</li>" : ""}</ul>
       <div class="lab-qr">${qrSvg(boxUrl(b.number))}Scan to see everything inside</div>
     </div>
     <div class="lab-foot">Packed by ${esc(short(b.packedBy))}. Killing Evil Matthew</div></div>`;
-}
-function printLabels(boxes) {
-  if (!boxes.length) return toast('There are no boxes to label yet.');
-  $('labels').innerHTML = boxes.slice().sort((a, b) => a.number - b.number).map(labelHtml).join('');
-  window.print();
-}
-function handleBoxQuery() {
-  if (!pendingBoxQuery) return;
-  const b = state.boxes.find(x => String(x.number) === String(pendingBoxQuery));
-  pendingBoxQuery = null;
-  if (!b) return toast('That box isn\'t in the Sheet any more.');
-  openBox = b.id; tab = 'packing'; render();
-  const card = $('boxcard-' + b.id); if (card) card.scrollIntoView({ block: 'start' });
-}
+      }
+      function printLabels(boxes) {
+        if (!boxes.length) return toast("There are no boxes to label yet.");
+        $("labels").innerHTML = boxes
+          .slice()
+          .sort((a, b) => a.number - b.number)
+          .map(labelHtml)
+          .join("");
+        window.print();
+      }
+      function handleBoxQuery() {
+        if (!pendingBoxQuery) return;
+        const b = state.boxes.find(
+          (x) => String(x.number) === String(pendingBoxQuery),
+        );
+        pendingBoxQuery = null;
+        if (!b) return toast("That box isn't in the Sheet any more.");
+        openBox = b.id;
+        tab = "packing";
+        render();
+        const card = $("boxcard-" + b.id);
+        if (card) card.scrollIntoView({ block: "start" });
+      }
 
-/* ---------- actions ---------- */
-async function logItem(decision) {
-  if (!me) return openPicker();
-  if (!room) { Sfx.play('error'); return toast('You stand in a dark corridor. Enter a room first.'); }
-  const lvlBefore = levelOf(heroStats(me).xp), bossBefore = bossOf(room);
-  const item = $('itemInput').value.trim() || 'Mystery item';
-  if (photo && !DEMO) toast('Casting… uploading your photo.', 8000);
-  const ok = await act({ action: 'add', item, room, decision, photo: photo ? (DEMO ? photo.sprite : photo.full) : '' });
-  if (!ok) return;
-  const mine = state.items.filter(i => i.player === me), it = mine[mine.length - 1] || {};
-  const lvlAfter = levelOf(heroStats(me).xp), bossAfter = bossOf(room);
-  const slain = bossBefore && bossAfter && !bossBefore.dead && bossAfter.dead;
+      /* ---------- actions ---------- */
+      async function logItem(decision) {
+        if (!me) return openPicker();
+        if (!room) {
+          Sfx.play("error");
+          return toast("You stand in a dark corridor. Enter a room first.");
+        }
+        const lvlBefore = levelOf(heroStats(me).xp),
+          bossBefore = bossOf(room);
+        const item = $("itemInput").value.trim() || "Mystery item";
+        if (photo && !DEMO) toast("Casting… uploading your photo.", 8000);
+        const ok = await act({
+          action: "add",
+          item,
+          room,
+          decision,
+          photo: photo ? (DEMO ? photo.sprite : photo.full) : "",
+        });
+        if (!ok) return;
+        const mine = state.items.filter((i) => i.player === me),
+          it = mine[mine.length - 1] || {};
+        const lvlAfter = levelOf(heroStats(me).xp),
+          bossAfter = bossOf(room);
+        const slain =
+          bossBefore && bossAfter && !bossBefore.dead && bossAfter.dead;
 
-  let msg = `You ${FATE[decision].done} ${item}!`;
-  if (decision === 'tribunal') msg += ' The others will vote on its fate.';
-  else if (decision === 'sell') msg += ` +${it.points} XP once it sells.`;
-  else if (it.points) msg += ` +${it.points} XP.`;
-  if (it.crit) msg = '💥 Critical hit! ' + msg;
-  if ((it.combo || 1) >= 2) msg += ` 🔥 ${it.combo}-hit combo${comboMult(it.combo) > 1 ? ', ×' + comboMult(it.combo) : ''}.`;
-  if (lvlAfter > lvlBefore) msg = `Level up! You are now level ${lvlAfter}. ` + msg;
-  if (slain) msg = `⚔️ You landed the final blow on ${bossAfter.boss}! The ${room} is clear. ` + msg;
-  toast(msg, slain ? 5500 : lvlAfter > lvlBefore ? 3800 : 2600);
+        let msg = `You ${FATE[decision].done} ${item}!`;
+        if (decision === "tribunal")
+          msg += " The others will vote on its fate.";
+        else if (decision === "sell") msg += ` +${it.points} XP once it sells.`;
+        else if (it.points) msg += ` +${it.points} XP.`;
+        if (it.crit) msg = "💥 Critical hit! " + msg;
+        if ((it.combo || 1) >= 2)
+          msg += ` 🔥 ${it.combo}-hit combo${comboMult(it.combo) > 1 ? ", ×" + comboMult(it.combo) : ""}.`;
+        if (lvlAfter > lvlBefore)
+          msg = `Level up! You are now level ${lvlAfter}. ` + msg;
+        if (slain)
+          msg =
+            `⚔️ You landed the final blow on ${bossAfter.boss}! The ${room} is clear. ` +
+            msg;
+        toast(msg, slain ? 5500 : lvlAfter > lvlBefore ? 3800 : 2600);
 
-  Sfx.play(it.crit ? 'crit' : decision);
-  if ((it.combo || 1) >= 2) Sfx.play('combo', it.combo);
-  if (slain) Sfx.play('fanfare'); else if (lvlAfter > lvlBefore) Sfx.play('levelUp');
+        Sfx.play(it.crit ? "crit" : decision);
+        if ((it.combo || 1) >= 2) Sfx.play("combo", it.combo);
+        if (slain) Sfx.play("fanfare");
+        else if (lvlAfter > lvlBefore) Sfx.play("levelUp");
 
-  $('itemInput').value = ''; photo = null; showPreview();
-  const el = $('boss'); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit');
-  $('itemInput').focus();
-}
+        $("itemInput").value = "";
+        photo = null;
+        showPreview();
+        const el = $("boss");
+        el.classList.remove("hit");
+        void el.offsetWidth;
+        el.classList.add("hit");
+        $("itemInput").focus();
+      }
 
-async function vote(id, v) {
-  const ok = await act({ action: 'vote', id, vote: v });
-  if (!ok) return;
-  const i = state.items.find(x => x.id === id);
-  if (i && i.status === 'verdict') {
-    toast(`The Tribunal has spoken: ${i.item} is ${i.decision === 'dump' ? 'banished' : 'spared'}!`, 3500);
-    Sfx.play('tribunal');
-  } else { toast('Vote cast. Waiting on the others.'); Sfx.play('vote'); }
-}
+      async function vote(id, v) {
+        const ok = await act({ action: "vote", id, vote: v });
+        if (!ok) return;
+        const i = state.items.find((x) => x.id === id);
+        if (i && i.status === "verdict") {
+          toast(
+            `The Tribunal has spoken: ${i.item} is ${i.decision === "dump" ? "banished" : "spared"}!`,
+            3500,
+          );
+          Sfx.play("tribunal");
+        } else {
+          toast("Vote cast. Waiting on the others.");
+          Sfx.play("vote");
+        }
+      }
 
-async function markSold(id) {
-  const key = 'price:' + id, field = document.querySelector(`[data-draft="${key}"]`);
-  const raw = drafts[key] ?? (field ? field.value : '');
-  const price = Number(raw);
-  if (raw === '' || !isFinite(price) || price < 0) { Sfx.play('error'); return toast('Enter what it sold for first. Use 0 if it went for free.'); }
-  const lvlBefore = levelOf(heroStats(me).xp);
-  if (!(await act({ action: 'sold', id, price }))) return;
-  delete drafts[key];
-  const i = state.items.find(x => x.id === id);
-  toast(`Sold for ${money(price)}! +${i ? i.points : 0} XP to ${i ? short(i.player) : 'the seller'}.`);
-  Sfx.play('sell');
-  if (levelOf(heroStats(me).xp) > lvlBefore) Sfx.play('levelUp');
-}
+      async function markSold(id) {
+        const key = "price:" + id,
+          field = document.querySelector(`[data-draft="${key}"]`);
+        const raw = drafts[key] ?? (field ? field.value : "");
+        const price = Number(raw);
+        if (raw === "" || !isFinite(price) || price < 0) {
+          Sfx.play("error");
+          return toast(
+            "Enter what it sold for first. Use 0 if it went for free.",
+          );
+        }
+        const lvlBefore = levelOf(heroStats(me).xp);
+        if (!(await act({ action: "sold", id, price }))) return;
+        delete drafts[key];
+        const i = state.items.find((x) => x.id === id);
+        toast(
+          `Sold for ${money(price)}! +${i ? i.points : 0} XP to ${i ? short(i.player) : "the seller"}.`,
+        );
+        Sfx.play("sell");
+        if (levelOf(heroStats(me).xp) > lvlBefore) Sfx.play("levelUp");
+      }
 
-async function giveUp(id) {
-  if (!(await act({ action: 'giveup', id }))) return;
-  toast(`Bestowed instead. +${state.points.donate || 0} XP.`); Sfx.play('donate');
-}
+      async function giveUp(id) {
+        if (!(await act({ action: "giveup", id }))) return;
+        toast(`Bestowed instead. +${state.points.donate || 0} XP.`);
+        Sfx.play("donate");
+      }
 
-async function newBox() {
-  const r = $('boxRoom').value;
-  if (!r) return toast('Pick a room for the box.');
-  const before = new Set(state.boxes.map(b => b.id));
-  if (!(await act({ action: 'box_add', room: r }))) return;
-  const b = state.boxes.find(x => !before.has(x.id));
-  if (b) { openBox = b.id; $('boxSearch').value = ''; render(); const t = $('box-' + b.id); if (t) t.focus(); }
-  toast(`Box ${b ? b.number : ''} is open. List what goes in it, one thing per line. +${state.points.box || 0} XP.`, 3200);
-  Sfx.play('box');
-}
+      async function newBox() {
+        const r = $("boxRoom").value;
+        if (!r) return toast("Pick a room for the box.");
+        const before = new Set(state.boxes.map((b) => b.id));
+        if (!(await act({ action: "box_add", room: r }))) return;
+        const b = state.boxes.find((x) => !before.has(x.id));
+        if (b) {
+          openBox = b.id;
+          $("boxSearch").value = "";
+          render();
+          const t = $("box-" + b.id);
+          if (t) t.focus();
+        }
+        toast(
+          `Box ${b ? b.number : ""} is open. List what goes in it, one thing per line. +${state.points.box || 0} XP.`,
+          3200,
+        );
+        Sfx.play("box");
+      }
 
-async function saveBox(id) {
-  const key = 'box:' + id, t = $('box-' + id);
-  const contents = drafts[key] ?? (t ? t.value : '');
-  if (!(await act({ action: 'box_update', id, contents }))) return;
-  delete drafts[key];
-  const b = state.boxes.find(x => x.id === id);
-  toast(`Box ${b ? b.number : ''} saved.`); Sfx.play('tick');
-}
+      async function saveBox(id) {
+        const key = "box:" + id,
+          t = $("box-" + id);
+        const contents = drafts[key] ?? (t ? t.value : "");
+        if (!(await act({ action: "box_update", id, contents }))) return;
+        delete drafts[key];
+        const b = state.boxes.find((x) => x.id === id);
+        toast(`Box ${b ? b.number : ""} saved.`);
+        Sfx.play("tick");
+      }
 
-async function deleteBox(id) {
-  const b = state.boxes.find(x => x.id === id);
-  if (!b || !confirm(`Delete box ${b.number}? Its contents list will be lost, and box numbers won't be reused.`)) return;
-  if (!(await act({ action: 'box_delete', id }))) return;
-  if (openBox === id) openBox = null;
-  delete drafts['box:' + id];
-  toast(`Box ${b.number} deleted.`);
-}
+      async function deleteBox(id) {
+        const b = state.boxes.find((x) => x.id === id);
+        if (
+          !b ||
+          !confirm(
+            `Delete box ${b.number}? Its contents list will be lost, and box numbers won't be reused.`,
+          )
+        )
+          return;
+        if (!(await act({ action: "box_delete", id }))) return;
+        if (openBox === id) openBox = null;
+        delete drafts["box:" + id];
+        toast(`Box ${b.number} deleted.`);
+      }
 
-async function toggleBond(id) {
-  const before = finalBossOf(), lvlBefore = levelOf(heroStats(me).xp);
-  if (!(await act({ action: 'bond_toggle', id }))) return;
-  const after = finalBossOf();
-  if (!before.dead && after.dead) { toast(`🏆 You defeated ${after.boss}! The bond is safe. Well played, heroes.`, 6000); Sfx.play('fanfare'); }
-  else { Sfx.play('tick'); if (levelOf(heroStats(me).xp) > lvlBefore) { Sfx.play('levelUp'); toast(`Level up! You are now level ${levelOf(heroStats(me).xp)}.`); } }
-}
+      async function toggleBond(id) {
+        const before = finalBossOf(),
+          lvlBefore = levelOf(heroStats(me).xp);
+        if (!(await act({ action: "bond_toggle", id }))) return;
+        const after = finalBossOf();
+        if (!before.dead && after.dead) {
+          toast(
+            `🏆 You defeated ${after.boss}! The bond is safe. Well played, heroes.`,
+            6000,
+          );
+          Sfx.play("fanfare");
+        } else {
+          Sfx.play("tick");
+          if (levelOf(heroStats(me).xp) > lvlBefore) {
+            Sfx.play("levelUp");
+            toast(`Level up! You are now level ${levelOf(heroStats(me).xp)}.`);
+          }
+        }
+      }
 
-async function undo(id) {
-  if (await act({ action: 'undo', id })) { toast('Time rewinds. That XP has been returned to the void.'); Sfx.play('keep'); }
-}
+      async function undo(id) {
+        if (await act({ action: "undo", id })) {
+          toast("Time rewinds. That XP has been returned to the void.");
+          Sfx.play("keep");
+        }
+      }
 
-/* ---------- photo capture ---------- */
-async function shrink(file, max, quality) {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = new Image();
-    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
-    const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-    const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(img.naturalWidth * scale));
-    c.height = Math.max(1, Math.round(img.naturalHeight * scale));
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', quality);
-  } finally { URL.revokeObjectURL(url); }
-}
-function showPreview() {
-  $('snapLabel').textContent = photo ? '📷 Retake' : '📷 Add photo';
-  $('photoPreview').innerHTML = photo
-    ? `<img class="sprite" src="${photo.sprite}" alt="Pixelated preview of your photo"><button type="button" class="linkish" data-act="clear-photo">Remove</button>` : '';
-}
+      /* ---------- photo capture ---------- */
+      async function shrink(file, max, quality) {
+        const url = URL.createObjectURL(file);
+        try {
+          const img = new Image();
+          await new Promise((res, rej) => {
+            img.onload = res;
+            img.onerror = rej;
+            img.src = url;
+          });
+          const scale = Math.min(
+            1,
+            max / Math.max(img.naturalWidth, img.naturalHeight),
+          );
+          const c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          return c.toDataURL("image/jpeg", quality);
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }
+      function showPreview() {
+        $("snapLabel").textContent = photo ? "📷 Retake" : "📷 Add photo";
+        $("photoPreview").innerHTML = photo
+          ? `<img class="sprite" src="${photo.sprite}" alt="Pixelated preview of your photo"><button type="button" class="linkish" data-act="clear-photo">Remove</button>`
+          : "";
+      }
 
-/* ---------- misc UI ---------- */
-function openPicker() {
-  $('playerButtons').innerHTML = state.players.map(p =>
-    `<button type="button" data-act="player" data-player="${esc(p)}">${avatarSvg(p, 44)}<span>${esc(p)}<span class="kind">${esc(kindOf(p))}</span></span></button>`).join('');
-  $('overlay').classList.add('open');
-}
-let toastTimer;
-function toast(msg, ms = 2600) {
-  const t = $('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
-}
+      /* ---------- misc UI ---------- */
+      function openPicker() {
+        $("playerButtons").innerHTML = state.players
+          .map(
+            (p) =>
+              `<button type="button" data-act="player" data-player="${esc(p)}">${avatarSvg(p, 44)}<span>${esc(p)}<span class="kind">${esc(kindOf(p))}</span></span></button>`,
+          )
+          .join("");
+        $("overlay").classList.add("open");
+      }
+      let toastTimer;
+      function toast(msg, ms = 2600) {
+        const t = $("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), ms);
+      }
 
-/* ---------- events ---------- */
-document.addEventListener('click', e => {
-  const t = e.target.closest('[data-act]'); if (!t || busy && t.dataset.act !== 'tab') return;
-  const id = t.dataset.id;
-  switch (t.dataset.act) {
-    case 'tab': tab = t.dataset.tab; lsSet('dd-tab', tab); render(); window.scrollTo(0, 0); if (tab !== 'quest') refresh(); break;
-    case 'room': room = t.dataset.room; lsSet('dd-room', room); render(); break;
-    case 'fate': logItem(t.dataset.d); break;
-    case 'undo': undo(id); break;
-    case 'vote': vote(id, t.dataset.v); break;
-    case 'sold': markSold(id); break;
-    case 'giveup': giveUp(id); break;
-    case 'box-new': newBox(); break;
-    case 'box-toggle': openBox = openBox === id ? null : id; render(); break;
-    case 'box-save': saveBox(id); break;
-    case 'box-delete': deleteBox(id); break;
-    case 'box-print': printLabels(state.boxes.filter(b => b.id === id)); break;
-    case 'print-all': printLabels(state.boxes); break;
-    case 'bond': toggleBond(id); break;
-    case 'clear-photo': photo = null; showPreview(); break;
-    case 'switch': openPicker(); break;
-    case 'player': me = t.dataset.player; lsSet('dd-me', me); $('overlay').classList.remove('open'); render(); break;
-    case 'sound': Sfx.on = !Sfx.on; lsSet('dd-sound', Sfx.on); render(); if (Sfx.on) Sfx.play('tick'); break;
-  }
-});
-document.addEventListener('input', e => {
-  const key = e.target.dataset && e.target.dataset.draft;
-  if (key) drafts[key] = e.target.value;
-  if (e.target.id === 'boxSearch') renderPacking();
-});
-$('photoInput').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
-  try { photo = { full: await shrink(file, 900, 0.72), sprite: await shrink(file, 64, 0.85) }; showPreview(); }
-  catch (err) { toast('That image wouldn\'t load. Try taking the photo again.'); }
-});
+      /* ---------- events ---------- */
+      document.addEventListener("click", (e) => {
+        const t = e.target.closest("[data-act]");
+        if (!t || (busy && t.dataset.act !== "tab")) return;
+        const id = t.dataset.id;
+        switch (t.dataset.act) {
+          case "tab":
+            tab = t.dataset.tab;
+            lsSet("dd-tab", tab);
+            render();
+            window.scrollTo(0, 0);
+            if (tab !== "quest") refresh();
+            break;
+          case "room":
+            room = t.dataset.room;
+            lsSet("dd-room", room);
+            render();
+            break;
+          case "fate":
+            logItem(t.dataset.d);
+            break;
+          case "undo":
+            undo(id);
+            break;
+          case "vote":
+            vote(id, t.dataset.v);
+            break;
+          case "sold":
+            markSold(id);
+            break;
+          case "giveup":
+            giveUp(id);
+            break;
+          case "box-new":
+            newBox();
+            break;
+          case "box-toggle":
+            openBox = openBox === id ? null : id;
+            render();
+            break;
+          case "box-save":
+            saveBox(id);
+            break;
+          case "box-delete":
+            deleteBox(id);
+            break;
+          case "box-print":
+            printLabels(state.boxes.filter((b) => b.id === id));
+            break;
+          case "print-all":
+            printLabels(state.boxes);
+            break;
+          case "bond":
+            toggleBond(id);
+            break;
+          case "clear-photo":
+            photo = null;
+            showPreview();
+            break;
+          case "switch":
+            openPicker();
+            break;
+          case "player":
+            me = t.dataset.player;
+            lsSet("dd-me", me);
+            $("overlay").classList.remove("open");
+            render();
+            break;
+          case "sound":
+            Sfx.on = !Sfx.on;
+            lsSet("dd-sound", Sfx.on);
+            render();
+            if (Sfx.on) Sfx.play("tick");
+            break;
+        }
+      });
+      document.addEventListener("input", (e) => {
+        const key = e.target.dataset && e.target.dataset.draft;
+        if (key) drafts[key] = e.target.value;
+        if (e.target.id === "boxSearch") renderPacking();
+      });
+      $("photoInput").addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = "";
+        if (!file) return;
+        try {
+          photo = {
+            full: await shrink(file, 900, 0.72),
+            sprite: await shrink(file, 64, 0.85),
+          };
+          showPreview();
+        } catch (err) {
+          toast("That image wouldn't load. Try taking the photo again.");
+        }
+      });
 
-$('demoNote').hidden = !DEMO;
-refresh();
-// Stay in sync while everyone's playing, without wiping anything mid-typing
-setInterval(() => {
-  const a = document.activeElement;
-  if (busy || document.visibilityState !== 'visible' || (a && a.matches('textarea, input.price'))) return;
-  refresh();
-}, 15000);
-</script>
-</body>
+      $("demoNote").hidden = !DEMO;
+      refresh();
+      // Stay in sync while everyone's playing, without wiping anything mid-typing
+      setInterval(() => {
+        const a = document.activeElement;
+        if (
+          busy ||
+          document.visibilityState !== "visible" ||
+          (a && a.matches("textarea, input.price"))
+        )
+          return;
+        refresh();
+      }, 15000);
+    </script>
+  </body>
 </html>
