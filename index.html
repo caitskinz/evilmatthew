@@ -935,7 +935,7 @@ function labelHtml(b) {
       <ul>${shown.map(l => `<li>${esc(l)}</li>`).join('')}${things.length > shown.length ? `<li>and ${things.length - shown.length} more</li>` : ''}${!things.length ? '<li>Contents not listed yet</li>' : ''}</ul>
       <div class="lab-qr">${qrSvg(boxUrl(b.number))}Scan to see everything inside</div>
     </div>
-    <div class="lab-foot">Packed by ${esc(short(b.packedBy))}. Declutter Draft</div></div>`;
+    <div class="lab-foot">Packed by ${esc(short(b.packedBy))}. Killing Evil Matthew</div></div>`;
 }
 function printLabels(boxes) {
   if (!boxes.length) return toast('There are no boxes to label yet.');
